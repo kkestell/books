@@ -1,5 +1,7 @@
 # Books
 
+![Books](screenshot.png)
+
 ## Configuration
 
 TODO
