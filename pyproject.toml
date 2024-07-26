@@ -1,0 +1,30 @@
+[project]
+name = "books"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Kyle Kestell", email = "kyle@kestell.org"},
+]
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "pyside6>=6.7.2",
+    "requests>=2.32.3",
+    "psutil>=6.0.0",
+    "python-dateutil>=2.9.0.post0",
+]
+requires-python = "<3.12,>=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "nuitka>=2.4.2",
+]
