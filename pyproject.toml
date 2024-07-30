@@ -12,7 +12,7 @@ dependencies = [
     "psutil>=6.0.0",
     "python-dateutil>=2.9.0.post0",
 ]
-requires-python = "<3.12,>=3.11"
+requires-python = "<3.13,>=3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
