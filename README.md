@@ -4,45 +4,41 @@
 
 ## Configuration
 
-TODO
+* **Linux**: `~/.config/books/config.json`
+* **Windows**: `%APPDATA%\books\config.json`
+* **macOS**: `~/Library/Application Support/books/config.json`
 
 ### Example
 
 ```json
 {
+  "libraryPath": "/home/kyle/Books",
+  "pythonPath": "/usr/bin/python3",
+  "ebookViewerPath": "/usr/bin/ebook-viewer",
+  "ebookMetaPath": "/usr/bin/ebook-meta",
+  "ebookConvertPath": "/usr/bin/ebook-convert"
 }
 ```
 
 ### Configuration Options
 
-TODO
+* **libraryPath**: Path to the directory containing your eBooks.
+* **pythonPath**: Path to the Python executable.
+* **ebookViewerPath**: Path to the Calibre eBook viewer executable.
+* **ebookMetaPath**: Path to the Calibre eBook metadata editor executable.
+* **ebookConvertPath**: Path to the Calibre eBook converter executable.
 
 ## Development
 
 ### System Dependencies
 
-#### Arch Linux
-
-Install `aur/python311`, `extra/patchelf`, and `extra/ccache`.
-
-```
-sudo pacman -Sy patchelf ccache
-yay python311
-```
-
 #### Windows
 
-Install [Visual Studio 2022](https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx) and [Python 3.11](https://www.python.org/downloads/windows/).
+Install [Visual Studio 2022](https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx) and [Python 3.12](https://www.python.org/downloads/windows/).
 
 #### macOS
 
-Install Xcode and [Python 3.11](https://www.python.org/downloads/mac-osx/).
-
-### Install PySide6 and Nuitka
-
-```
-pip install -r requirements.txt
-```
+Install Xcode and [Python 3.12](https://www.python.org/downloads/mac-osx/).
 
 ### Build
 
