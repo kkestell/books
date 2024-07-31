@@ -102,11 +102,13 @@ class DownloadWorker(QThread):
 
     def download(self, job):
         Log.info(f"Downloading {job.title}")
-        job.status = "Starting"
-        self.statusChanged.emit(job)
 
         for url in job.mirrors:
+            job.status = "Starting"
+            self.statusChanged.emit(job)
+
             Log.info(f"Trying {url}")
+
             try:
                 if not self.isRunning:
                     break
@@ -116,43 +118,56 @@ class DownloadWorker(QThread):
                     continue
                 doc = BeautifulSoup(res.text, "html.parser")
                 if "library.lol" in url:
-                    download_url = doc.select_one("div#download h2 a")["href"]
+                    downloadUrls = [doc.select_one("div#download h2 a")["href"]]
+                    mirrors = doc.select("ul > li > a")
+                    for mirror in mirrors:
+                        downloadUrls.append(mirror["href"])
                 else:
-                    download_url = doc.select_one("a")["href"]
+                    relativeUrl = doc.select_one("a:contains('GET')")["href"]
+                    domain = url.split("/")[2]
+                    downloadUrls = [f"https://{domain}/{relativeUrl}"]
+                    pass
 
-                extension = download_url.split(".")[-1]
+                for downloadUrl in downloadUrls:
+                    Log.info(f"Downloading from {downloadUrl}")
 
-                res = requests.get(download_url, stream=True, timeout=10)
-                if res.status_code != 200:
-                    print("Error:", res.status_code)
-                    continue
+                    try:
+                        extension = job.format.lower()
 
-                totalLength = int(res.headers.get('content-length', 0))
-                if totalLength == 0:
-                    print("Error: 0 content length")
-                    continue
+                        res = requests.get(downloadUrl, stream=True, timeout=30)
+                        if res.status_code != 200:
+                            Log.info(f"Error: {res.status_code}")
+                            continue
 
-                print(f"Downloading {totalLength} bytes")
+                        totalLength = int(res.headers.get('content-length', 0))
+                        if totalLength == 0:
+                            Log.info("Error: 0 content length")
+                            continue
 
-                with tempfile.NamedTemporaryFile(delete=False, suffix=f".{extension}") as tempFile:
-                    tempPath = tempFile.name
+                        Log.info(f"Downloading {totalLength} bytes")
 
-                    downloaded = 0
-                    for data in res.iter_content(chunk_size=8192):
-                        if data:
-                            tempFile.write(data)
-                            downloaded += len(data)
-                            percentage = int((downloaded / totalLength) * 100)
-                            job.status = f"{percentage}%"
-                            self.statusChanged.emit(job)
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{extension}") as tempFile:
+                            tempPath = tempFile.name
 
-                Log.info(f"Downloaded {job.title}")
-                job.status = "Success"
-                self.statusChanged.emit(job)
-                return tempPath
+                            downloaded = 0
+                            for data in res.iter_content(chunk_size=8192):
+                                if data:
+                                    tempFile.write(data)
+                                    downloaded += len(data)
+                                    percentage = int((downloaded / totalLength) * 100)
+                                    job.status = f"{percentage}%"
+                                    self.statusChanged.emit(job)
+
+                        Log.info(f"Downloaded {job.title}")
+                        job.status = "Success"
+                        self.statusChanged.emit(job)
+                        return tempPath
+                    except Exception as e:
+                        Log.info(f"Error downloading from mirror: {e}")
+                        continue
             except Exception as e:
                 Log.info(f"Error downloading {job.title}: {e}")
-                pass
+                continue
 
         Log.info(f"Failed to download {job.title}")
         job.status = "Error"
