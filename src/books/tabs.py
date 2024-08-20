@@ -121,16 +121,10 @@ class SearchTab(QWidget):
         self.searchInput.returnPressed.connect(self.startSearch)
         self.searchLayout.addWidget(self.searchInput, 1)
 
-        # type
-
-        self.searchType = QComboBox()
-        self.searchType.addItems(["Fiction", "Non-Fiction"])
-        self.searchType.currentIndexChanged.connect(self.updateSearchFormats)
-        self.searchLayout.addWidget(self.searchType)
-
         # format
 
         self.searchFormat = QComboBox()
+        self.searchFormat.addItems(["Any Format", "EPUB", "MOBI", "AZW", "AZW3", "FB2", "PDF", "RTF", "TXT"])
         self.searchLayout.addWidget(self.searchFormat)
 
         # search button
@@ -159,42 +153,22 @@ class SearchTab(QWidget):
 
         self.layout.addWidget(self.tableView)
 
-        # final set up
-
-        self.updateSearchFormats()
-
-    def updateSearchFormats(self):
-        searchType = self.searchType.currentText()
-        if searchType == "Fiction":
-            formats = ["Any Format", "EPUB", "MOBI", "AZW", "AZW3", "FB2", "PDF", "RTF", "TXT"]
-        else:
-            formats = ["Any Format", "PDF", "DJVU", "CHM", "ZIP", "EPUB", "MOBI", "AZW", "AZW3", "RAR", "7Z"]
-        self.searchFormat.clear()
-        self.searchFormat.addItems(formats)
-
     def startSearch(self):
         if self.searchWorker:
             QMessageBox.warning(self, "Search in progress", "A search is already in progress. Please wait for it to finish before starting another search.")
             return
         query = self.searchInput.text()
-        searchType = self.searchType.currentText()
         format = self.searchFormat.currentText()
         if format == "Any Format":
             format = ""
 
-        if searchType == "Non-Fiction":
-            self.tableView.hideColumn(self.model.headers.index("Series"))
-        else:
-            self.tableView.showColumn(self.model.headers.index("Series"))
-
         self.searchInput.setEnabled(False)
-        self.searchType.setEnabled(False)
         self.searchFormat.setEnabled(False)
         self.searchButton.setEnabled(False)
 
         self.model.clearRows()
 
-        self.searchWorker = SearchWorker(query, searchType, format)
+        self.searchWorker = SearchWorker(query, format)
         self.searchWorker.newRecord.connect(self.addRecord)
         self.searchWorker.searchComplete.connect(self.searchComplete)
         self.searchWorker.start()
@@ -211,7 +185,6 @@ class SearchTab(QWidget):
 
     def searchComplete(self):
         self.searchInput.setEnabled(True)
-        self.searchType.setEnabled(True)
         self.searchFormat.setEnabled(True)
         self.searchButton.setEnabled(True)
         self.searchWorker = None

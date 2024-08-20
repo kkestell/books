@@ -1,3 +1,4 @@
+import html
 import tempfile
 from queue import Empty, Queue
 
@@ -179,90 +180,58 @@ class SearchWorker(QThread):
     newRecord = Signal(SearchResult)
     searchComplete = Signal()
 
-    def __init__(self, query, search_type, format):
+    def __init__(self, query, format):
         super().__init__()
         self.query = query
-        self.search_type = search_type
         self.format = format
 
     def run(self):
-        if self.search_type == "Fiction":
-            self.searchFiction()
-        else:
-            self.searchNonFiction()
+        self.search()
         self.searchComplete.emit()
 
-    def searchFiction(self):
+    def search(self):
         page = 1
         try:
             Log.info(f"Searching for {self.query}...")
             while page < 10:
                 if not self.isRunning:
                     break
-                url = f"https://libgen.is/fiction/?q={self.query}&language=English&format={self.format}&page={page}"
+                url = f"https://libgen.li/index.php?req={self.query}&res=100&page={page}"
                 Log.info(f"Requesting {url}")
                 res = requests.get(url)
                 if res.status_code != 200:
                     raise Exception(f"HTTP Error {res.status_code}")
                 doc = BeautifulSoup(res.text, "html.parser")
-                table = doc.select_one("table.catalog tbody")
+                table = doc.select_one("table#tablelibgen tbody")
                 if not table:
                     break
                 rows = table.select("tr")
                 for row in rows:
                     columns = row.select("td")
-                    authors = columns[0].findAll("a")
-                    authorNames = ", ".join([self.fixAuthor(author.text) for author in authors])
+                    title_cell = columns[0].select_one("a[data-toggle='tooltip']")
+                    title = title_cell["title"]
+                    title = html.unescape(title)
+                    title = title.split("<br>")[1]
+                    authors = columns[1].text.strip()
+                    authorNames = self.fixAuthor(authors)
                     if len(authorNames) > 40:
                         authorNames = authorNames[:40] + "..."
-                    series = columns[1].text.strip()
-                    title = columns[2].find("a").text.strip()
-                    language = columns[3].text.strip()
+                    series = columns[0].select_one("b")
+                    if series:
+                        series = series.text.strip()
+                    else:
+                        series = ""
+                    language = columns[4].text.strip()
                     if language.lower() != "english":
                         continue
-                    file = columns[4].text
-                    extension, size = [p.strip().upper() for p in file.split("/")]
-                    mirrors = columns[5].findAll("a")
-                    mirrorLinks = [mirror["href"] for mirror in mirrors]
+                    file_info = columns[6].select_one("nobr a").text.strip()
+                    size = file_info.upper() if file_info else "N/A"
+                    extension = columns[7].text.strip().upper()
+                    if self.format and extension != self.format.upper():
+                        continue
+                    mirrors = columns[8].select("a[data-toggle='tooltip']")
+                    mirrorLinks = [f"https://libgen.li{mirror['href']}" for mirror in mirrors]
                     self.newRecord.emit(SearchResult(authorNames, series, title, extension, size, mirrorLinks))
-                page += 1
-            Log.info("Search complete.")
-        except Exception as e:
-            Log.info(e)
-            pass
-
-    def searchNonFiction(self):
-        page = 1
-        try:
-            Log.info(f"Searching for {self.query}...")
-            while page < 10:
-                url = f"https://libgen.is/search.php?req={self.query}&open=0&res=100&view=simple&phrase=1&column=def&page={page}"
-                Log.info(f"Requesting {url}")
-                res = requests.get(url)
-                if res.status_code != 200:
-                    raise Exception(f"HTTP Error {res.status_code}")
-                doc = BeautifulSoup(res.text, "html.parser")
-                table = doc.select_one("table.c")
-                if not table:
-                    return
-                rows = table.select("tr")[1:]
-                for row in rows:
-                    columns = row.select("td")
-                    authors = columns[1].findAll("a")
-                    authorNames = ", ".join([self.fixAuthor(author.text) for author in authors])
-                    if len(authorNames) > 40:
-                        authorNames = authorNames[:40].strip() + "..."
-                    title = columns[2].find("a").find(string=True).strip()
-                    language = columns[6].text.strip()
-                    if language.lower() != "english":
-                        continue
-                    size = columns[7].text.strip().upper()
-                    extension = columns[8].text.strip().upper()
-                    if self.format and self.format != extension:
-                        continue
-                    mirrors = columns[9].findAll("a")
-                    mirrorLinks = [mirror["href"] for mirror in mirrors]
-                    self.newRecord.emit(SearchResult(authorNames, "", title, extension, size, mirrorLinks))
                 page += 1
             Log.info("Search complete.")
         except Exception as e:
