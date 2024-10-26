@@ -1,29 +1,27 @@
 import os
 import sys
-from typing import List
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon, QDesktopServices, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QMainWindow, QTabWidget, QFileDialog, QMessageBox
 
-from kindle import Kindle
-from log import Log
-from models import Library, Book
-from config import Config
-from tabs import LibraryTab, DownloadsTab, SearchTab
-from windows import LogViewerWindow
-from workers import DownloadWorker, ImportWorker, ConversionWorker
+from books.core.constants import ebookExtensions, ebookExtensionsFilterString
+from src.books.core.config import Config
+from src.books.core.library import Library
+from src.books.core.log import Log
+from src.books.core.models.book import Book
+from src.books.tabs.library_tab import LibraryTab
+from src.books.threads.conversion_thread import ConversionThread
+from src.books.threads.download_thread import DownloadThread
+from src.books.threads.import_thread import ImportThread
+from src.books.threads.kindle_monitor_thread import KindleMonitorThread
+from src.books.windows.log_viewer_window import LogViewerWindow
+from src.books.tabs.downloads_tab import DownloadsTab
+from src.books.tabs.search_tab import SearchTab
 
 
 class MainWindow(QMainWindow):
-    """
-    Main application window that handles the primary UI components and interactions.
-    """
-
     def __init__(self):
-        """
-        Initialize the main application window, including tabs, workers, and menu actions.
-        """
         super().__init__()
 
         Log.info("Starting up")
@@ -33,20 +31,22 @@ class MainWindow(QMainWindow):
             sys.exit(1)
 
         # Set the window icon
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        # this file is in /src/books/windows/main_window.py and the icon is in /assets/icon.png
+        # basedir is /
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
         icon_path = os.path.join(base_dir, "assets", "icon.png")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        else:
-            icon_path = os.path.join(os.path.dirname(os.path.dirname(base_dir)), "assets", "icon.png")
-            if os.path.exists(icon_path):
-                self.setWindowIcon(QIcon(icon_path))
+        # else:
+        #     icon_path = os.path.join(os.path.dirname(os.path.dirname(base_dir)), "assets", "icon.png")
+        #     if os.path.exists(icon_path):
+        #         self.setWindowIcon(QIcon(icon_path))
 
         # Initialize the library
         self.library = Library()
 
         # Initialize the download worker
-        self.downloadWorker = DownloadWorker()
+        self.downloadWorker = DownloadThread()
 
         # Connect download worker signals to slots
         self.downloadWorker.jobQueued.connect(self.downloadJobQueued)
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.downloadsTab, "Downloads")
 
         # Set up Kindle device monitoring
-        self.kindle = Kindle()
+        self.kindle = KindleMonitorThread()
         self.kindle.booksChanged.connect(self.libraryTab.kindleBooksChanged)
         self.kindle.kindleConnected.connect(self.libraryTab.kindleConnected)
         self.kindle.kindleDisconnected.connect(self.libraryTab.kindleDisconnected)
@@ -253,14 +253,14 @@ class MainWindow(QMainWindow):
         self.updateLibraryTabTitle()
         self.libraryTab.refreshTable()
 
-    def doImport(self, filePaths: List[str]):
+    def doImport(self, filePaths: list[str]):
         """
         Start the import worker to import books from given file paths.
 
         :param filePaths: The file paths of the books to import.
-        :type filePaths: List[str]
+        :type filePaths: list[str]
         """
-        self.importWorker = ImportWorker(self.libraryTab.library, filePaths)
+        self.importWorker = ImportThread(self.libraryTab.library, filePaths)
 
         # Connect import worker signals to slots
         self.importWorker.importStarted.connect(self.importStarted)
@@ -286,7 +286,7 @@ class MainWindow(QMainWindow):
             self,
             "Select books",
             "",
-            "ePub Files (*.epub);;Mobi Files (*.mobi);;AZW Files (*.azw);;AZW3 Files (*.azw3);;FB2 Files (*.fb2);;PDF Files (*.pdf);;RTF Files (*.rtf);;Text Files (*.txt);;DjVu Files (*.djvu);;CHM Files (*.chm)"
+            ebookExtensionsFilterString
         )
         if not filePaths:
             return
@@ -314,10 +314,7 @@ class MainWindow(QMainWindow):
         for root, dirs, files in os.walk(directory):
             for file in files:
                 extension = os.path.splitext(file)[1].lower()
-                validExtensions = [
-                    '.epub', '.mobi', '.azw', '.azw3', '.fb2',
-                    '.pdf', '.rtf', '.txt', '.djvu', '.chm'
-                ]
+                validExtensions = [f".{ext}" for ext in ebookExtensions]
                 if extension in validExtensions:
                     filePath = os.path.join(root, file)
                     allFiles.append(filePath)
@@ -382,14 +379,14 @@ class MainWindow(QMainWindow):
         self.libraryTab.refreshTable()
         self.importWorker = None
 
-    def sendBooksToDevice(self, books: List[Book]):
+    def sendBooksToDevice(self, books: list[Book]):
         """
         Start the conversion worker to send books to the device.
 
         :param books: The books to send to the connected device.
-        :type books: List[Book]
+        :type books: list[Book]
         """
-        self.conversionWorker = ConversionWorker(self.kindle, books)
+        self.conversionWorker = ConversionThread(self.kindle, books)
 
         # Connect conversion worker signals to slots
         self.conversionWorker.conversionStarted.connect(self.conversionStarted)
@@ -466,10 +463,7 @@ class MainWindow(QMainWindow):
             for url in urls:
                 if url.isLocalFile():
                     extension = os.path.splitext(url.toLocalFile())[1].lower()
-                    validExtensions = [
-                        '.epub', '.mobi', '.azw', '.azw3', '.fb2',
-                        '.pdf', '.rtf', '.txt', '.djvu', '.chm'
-                    ]
+                    validExtensions = [f".{ext}" for ext in ebookExtensions]
                     if extension in validExtensions:
                         event.accept()
                         return
@@ -488,10 +482,7 @@ class MainWindow(QMainWindow):
             for url in urls:
                 if url.isLocalFile():
                     extension = os.path.splitext(url.toLocalFile())[1].lower()
-                    validExtensions = [
-                        '.epub', '.mobi', '.azw', '.azw3', '.fb2',
-                        '.pdf', '.rtf', '.txt', '.djvu', '.chm'
-                    ]
+                    validExtensions = [f".{ext}" for ext in ebookExtensions]
                     if extension in validExtensions:
                         filePaths.append(url.toLocalFile())
             if filePaths:

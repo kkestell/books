@@ -4,7 +4,7 @@ from sys import platform
 from dataclasses import dataclass, asdict
 from typing import Optional
 
-from log import Log
+from src.books.core.log import Log
 
 @dataclass
 class Config:

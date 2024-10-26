@@ -3,15 +3,17 @@ import os
 from sys import platform
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
+from datetime import datetime
 
 
 class LogSignalEmitter(QObject):
     """
     A QObject class responsible for emitting log message signals.
 
-    :signal logMessageSignal: Signal emitted with a log message as a string.
+    :signal messageLogged: Signal emitted with a log message as a dictionary.
     """
-    logMessageSignal = Signal(str)
+
+    messageLogged = Signal(dict)
 
     def __init__(self):
         """
@@ -27,6 +29,7 @@ class Log:
     This class handles creating log files, logging messages to both
     a file and emitting them via signals for use in the UI.
     """
+
     _instance = None
     _logger = None
     _logFilePath = None
@@ -52,42 +55,63 @@ class Log:
         if cls._logger is None:
             # Determine the path to store log files based on the platform
             if platform == "win32":
-                logPath = Path(os.getenv('LOCALAPPDATA')) / 'Books' / 'Logs'
+                logPath = Path(os.getenv("LOCALAPPDATA")) / "Books"
             elif platform == "darwin":
-                logPath = Path.home() / 'Library' / 'Logs' / 'Books'
+                logPath = Path.home() / "Library" / "Logs" / "Books"
             else:
-                logPath = Path.home() / '.local' / 'state' / 'books'
+                logPath = Path.home() / ".local" / "state" / "books"
 
             # Ensure the log directory exists
             logPath.mkdir(parents=True, exist_ok=True)
-            cls._logFilePath = logPath / 'books.log'
+            cls._logFilePath = logPath / "log.txt"
 
             # Create the logger
-            cls._logger = logging.getLogger('BooksLogger')
-            cls._logger.setLevel(logging.INFO)
+            cls._logger = logging.getLogger("MusicLogger")
+            cls._logger.setLevel(logging.DEBUG)
 
             # Create file handler to log messages to a file
-            fh = logging.FileHandler(str(cls._logFilePath))
-            fh.setLevel(logging.INFO)
+            fileHandler = logging.FileHandler(str(cls._logFilePath), encoding="utf-8")
+            fileHandler.setLevel(logging.DEBUG)
 
             # Create a formatter for log messages
-            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+            fileFormatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
             # Add the formatter to the file handler
-            fh.setFormatter(formatter)
+            fileHandler.setFormatter(fileFormatter)
 
             # Add the file handler to the logger
-            cls._logger.addHandler(fh)
+            cls._logger.addHandler(fileHandler)
 
             # Create the signal emitter for UI logging
             cls._signalEmitter = LogSignalEmitter()
 
             # Create a signal handler to emit log messages as signals
             cls._signalHandler = LogSignalHandler(cls._signalEmitter)
-            cls._signalHandler.setFormatter(formatter)
 
             # Add the signal handler to the logger
             cls._logger.addHandler(cls._signalHandler)
+
+    @classmethod
+    def error(cls, message: str):
+        """
+        Log an error message.
+
+        :param message: The message to log.
+        :type message: str
+        """
+        cls._setup()
+        cls._logger.error(message)
+
+    @classmethod
+    def warning(cls, message: str):
+        """
+        Log a warning message.
+
+        :param message: The message to log.
+        :type message: str
+        """
+        cls._setup()
+        cls._logger.warning(message)
 
     @classmethod
     def info(cls, message: str):
@@ -99,6 +123,17 @@ class Log:
         """
         cls._setup()
         cls._logger.info(message)
+
+    @classmethod
+    def verbose(cls, message: str):
+        """
+        Log a verbose message.
+
+        :param message: The message to log.
+        :type message: str
+        """
+        cls._setup()
+        cls._logger.debug(message)
 
     @classmethod
     def getLogFilePath(cls) -> Path:
@@ -145,8 +180,12 @@ class LogSignalHandler(logging.Handler):
         :param record: The log record to emit as a signal.
         :type record: logging.LogRecord
         """
-        # Format the log record message
-        msg = self.format(record)
+        # Create the log message dictionary
+        logDict = {
+            "timestamp": datetime.fromtimestamp(record.created).isoformat(),
+            "level": record.levelname.lower(),
+            "message": record.getMessage()
+        }
 
         # Emit the log message signal
-        self.signalEmitter.logMessageSignal.emit(msg)
+        self.signalEmitter.messageLogged.emit(logDict)
