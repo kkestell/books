@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QHeaderView, \
     QMessageBox
 
-from books.core.constants import ebookExtensions
+from src.books.core.constants import ebookExtensions
 from src.books.view_models.search_results_table_model import SearchResultsTableModel
 from src.books.views.search_table_view import SearchTableView
 from src.books.threads.search_thread import SearchThread

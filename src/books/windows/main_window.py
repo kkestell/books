@@ -5,7 +5,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon, QDesktopServices, QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QMainWindow, QTabWidget, QFileDialog, QMessageBox
 
-from books.core.constants import ebookExtensions, ebookExtensionsFilterString
+from src.books.core.constants import ebookExtensions, ebookExtensionsFilterString
 from src.books.core.config import Config
 from src.books.core.library import Library
 from src.books.core.log import Log

@@ -9,7 +9,7 @@ from typing import Optional
 import psutil
 from PySide6.QtCore import QThread, Signal
 
-from books.core.constants import ebookExtensions
+from src.books.core.constants import ebookExtensions
 from src.books.core.config import Config
 from src.books.core.log import Log
 from src.books.core.models.book import createBookFromFile, Book
