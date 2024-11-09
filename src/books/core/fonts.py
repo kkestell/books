@@ -1,6 +1,4 @@
-from PySide6.QtGui import QFont, QFontDatabase
-
-from src.books.core.log import Log
+from PySide6.QtGui import QFont
 
 
 def getMonospacedFont() -> QFont:
@@ -10,7 +8,6 @@ def getMonospacedFont() -> QFont:
     :return: The preferred monospaced font.
     :rtype: QFont
     """
-    fontDatabase = QFontDatabase()
     preferredFonts = [
         "Cascadia Code",
         "Consolas",
@@ -28,13 +25,11 @@ def getMonospacedFont() -> QFont:
         font = QFont(fontName, 10)
         if font.family():
             font.setStyleHint(QFont.StyleHint.Monospace)
-            Log.info(f"Using default font: {font.family()}")
             return font
 
     font = QFont()
     font.setStyleHint(QFont.StyleHint.Monospace)
     font.setPointSize(10)
-    Log.info(f"Using default font: {font.family()}")
     return font
 
 
@@ -68,11 +63,9 @@ def getSansSerifFont() -> QFont:
         font = QFont(fontName, 10)
         if font.family():
             font.setStyleHint(QFont.StyleHint.SansSerif)
-            Log.info(f"Using preferred font: {font.family()}")
             return font
 
     font = QFont()
     font.setStyleHint(QFont.StyleHint.SansSerif)
     font.setPointSize(10)
-    Log.info(f"Using default font: {font.family()}")
     return font

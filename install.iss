@@ -3,7 +3,7 @@
 [Setup]
 AppId={{15B0BFB2-7A36-43D3-90C7-B714DCDC1F19}
 AppName=Books
-AppVersion=0.2.0
+AppVersion=0.3.0
 AppVerName=Books
 AppPublisher=Kyle Kestell
 AppPublisherURL=https://github.com/kkestell/books
@@ -16,7 +16,7 @@ DisableProgramGroupPage=yes
 LicenseFile={#SourceDir}\LICENSE
 PrivilegesRequired=lowest
 OutputDir={#SourceDir}\publish
-OutputBaseFilename=Books_0.2.0_Setup
+OutputBaseFilename=Books_0.3.0_Setup
 SetupIconFile={#SourceDir}\assets\icon.ico
 Compression=lzma
 SolidCompression=yes

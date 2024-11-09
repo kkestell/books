@@ -174,10 +174,10 @@ class Book:
 
         try:
             result = run(args)
+            Log.info(f"Metadata updated:\n{result.stdout}")
         except subprocess.CalledProcessError as e:
             Log.info(f"Failed to update metadata: {e.stderr}")
 
-        Log.info(f"Metadata updated:\n{result.stdout}")
 
     def __eq__(self, other):
         """

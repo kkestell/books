@@ -12,7 +12,7 @@ class LogViewerWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Log Viewer")
-        self.resize(800, 600)
+        self.resize(1200, 600)
 
         self.logFilePath = Log.getLogFilePath()
 
@@ -81,9 +81,19 @@ class LogViewerWindow(QMainWindow):
         if self.followCheckBox.isChecked():
             self.tableView.scrollToBottom()
 
-    def appendLogMessage(self, log_dict: dict):
-        entry = LogEntry(log_dict["timestamp"], log_dict["level"].upper(), log_dict["message"])
-        self.logModel.appendLogEntry(entry)
+    def appendLogMessage(self, logEntry: dict):
+        self.logModel.appendLogEntry(LogEntry(logEntry["timestamp"], logEntry["source"], logEntry["level"], logEntry["message"]))
+
+        self.tableView.resizeRowsToContents()
 
         if self.followCheckBox.isChecked():
             self.tableView.scrollToBottom()
+
+    def closeEvent(self, event):
+        if self.logFileLoader and self.logFileLoader.isRunning():
+            self.logFileLoader.terminate()
+            self.logFileLoader.wait()
+
+        self.logSignalEmitter.messageLogged.disconnect(self.appendLogMessage)
+
+        super().closeEvent(event)

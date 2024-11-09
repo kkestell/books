@@ -84,7 +84,7 @@ class MetadataTableModel(QAbstractTableModel):
         self.records = []
         self.endResetModel()
 
-    def setData(self, newData: list[MetadataResult]):
+    def setRecords(self, newData: list[MetadataResult]):
         """
         Set new data for the model.
 

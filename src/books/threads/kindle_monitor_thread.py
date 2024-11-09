@@ -1,4 +1,3 @@
-import ctypes
 import os
 import shutil
 import subprocess
@@ -149,25 +148,32 @@ class KindleMonitorThread(QThread):
         :return: The volume label if found, otherwise None.
         :rtype: Optional[str]
         """
+        if os.name != 'nt':  # Only proceed on Windows
+            return None
+
+        try:
+            from ctypes import wintypes, create_unicode_buffer, sizeof, windll, byref, c_wchar_p
+        except ImportError:
+            return None
+
         if not driveLetter.endswith('\\'):
             driveLetter += '\\'
 
-        volNameBuf = ctypes.create_unicode_buffer(1024)
-        fsNameBuf = ctypes.create_unicode_buffer(1024)
-        serialNumber = ctypes.wintypes.DWORD()
-        maxComponentLen = ctypes.wintypes.DWORD()
-        fileSystemFlags = ctypes.wintypes.DWORD()
+        volNameBuf = create_unicode_buffer(1024)
+        fsNameBuf = create_unicode_buffer(1024)
+        serialNumber = wintypes.DWORD()
+        maxComponentLen = wintypes.DWORD()
+        fileSystemFlags = wintypes.DWORD()
 
-        # Call Windows API GetVolumeInformationW to get volume label
-        ret = ctypes.windll.kernel32.GetVolumeInformationW(
-            ctypes.c_wchar_p(driveLetter),
+        ret = windll.kernel32.GetVolumeInformationW(
+            c_wchar_p(driveLetter),
             volNameBuf,
-            ctypes.sizeof(volNameBuf),
-            ctypes.byref(serialNumber),
-            ctypes.byref(maxComponentLen),
-            ctypes.byref(fileSystemFlags),
+            sizeof(volNameBuf),
+            byref(serialNumber),
+            byref(maxComponentLen),
+            byref(fileSystemFlags),
             fsNameBuf,
-            ctypes.sizeof(fsNameBuf)
+            sizeof(fsNameBuf)
         )
         if ret:
             return volNameBuf.value

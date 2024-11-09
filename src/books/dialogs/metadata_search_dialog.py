@@ -24,6 +24,9 @@ class MetadataSearchDialog(QDialog):
         :type parent: QWidget, optional
         """
         super().__init__(parent)
+
+        self.searchThread = None
+
         self.setWindowTitle("Search Metadata")
         self.setMinimumSize(600, 400)
 
@@ -66,7 +69,7 @@ class MetadataSearchDialog(QDialog):
         :param data: A list of MetadataRecord objects representing search results.
         :type data: list[MetadataResult]
         """
-        self.tableModel.setData(data)
+        self.tableModel.setRecords(data)
         for i in range(self.tableModel.columnCount()):
             self.tableView.resizeColumnToContents(i)
 

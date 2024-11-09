@@ -2,6 +2,7 @@ import sys
 
 from PySide6.QtWidgets import (QApplication)
 
+from books.core.library import Library
 from src.books.core.fonts import getSansSerifFont
 from src.books.windows.main_window import MainWindow
 
@@ -12,13 +13,15 @@ def main():
     """
 
     app = QApplication(sys.argv)
+    app.setApplicationName("Books")
     app.setStyle("Fusion")
     font = getSansSerifFont()
     app.setFont(font)
 
-    window = MainWindow()
+    library = Library()
+    window = MainWindow(library)
     window.show()
-    app.exec()
+    return app.exec()
 
 
 if __name__ == "__main__":

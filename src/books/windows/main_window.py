@@ -3,7 +3,7 @@ import sys
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QIcon, QDesktopServices, QDragEnterEvent, QDropEvent
-from PySide6.QtWidgets import QMainWindow, QTabWidget, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QTabWidget, QFileDialog, QMessageBox, QWidget, QVBoxLayout
 
 from src.books.core.constants import ebookExtensions, ebookExtensionsFilterString
 from src.books.core.config import Config
@@ -21,114 +21,91 @@ from src.books.tabs.search_tab import SearchTab
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, library: Library, parent: QWidget | None = None) -> None:
         super().__init__()
 
+        # Log startup
         Log.info("Starting up")
 
-        # Verify Calibre tools before proceeding
+        # Verify Calibre tools
         if not self.verifyCalibreTools():
             sys.exit(1)
 
-        # Set the window icon
-        # this file is in /src/books/windows/main_window.py and the icon is in /assets/icon.png
-        # basedir is /
+        # Set window icon
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
         icon_path = os.path.join(base_dir, "assets", "icon.png")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        # else:
-        #     icon_path = os.path.join(os.path.dirname(os.path.dirname(base_dir)), "assets", "icon.png")
-        #     if os.path.exists(icon_path):
-        #         self.setWindowIcon(QIcon(icon_path))
 
-        # Initialize the library
-        self.library = Library()
+        # Initialize library and threads
+        self._library = library
+        self._downloadThread = DownloadThread()
+        self._importThread = None
+        self._conversionThread = None
+        self._logViewerWindow = None
 
-        # Initialize the download worker
-        self.downloadWorker = DownloadThread()
-
-        # Connect download worker signals to slots
-        self.downloadWorker.jobQueued.connect(self.downloadJobQueued)
-        self.downloadWorker.statusChanged.connect(self.statusChanged)
-        self.downloadWorker.downloadComplete.connect(self.downloadComplete)
-
-        # Initialize the import worker
-        self.importWorker = None
-        self.importCounter = 0
-
-        # Initialize the conversion worker
-        self.conversionWorker = None
-
-        # Set up the main window
+        # Set up main window properties
         self.setWindowTitle("Books")
-        self.resize(1200, 800)
-
-        # Enable drag and drop
+        self.resize(1280, 768)
         self.setAcceptDrops(True)
 
-        # Create and set up tabs
+        # Set up central widget and layout
+        centralWidget = QWidget(self)
+        mainLayout = QVBoxLayout(centralWidget)
         self.tabs = QTabWidget(self)
 
-        # Library tab
-        self.libraryTab = LibraryTab(self.library, self)
+        # Configure Library tab
+        self.libraryTab = LibraryTab(self._library, self)
         self.libraryTab.bookRemoved.connect(self.updateLibraryTabTitle)
         self.libraryTab.sendToDeviceRequested.connect(self.sendBooksToDevice)
         self.tabs.addTab(self.libraryTab, "Library")
         self.updateLibraryTabTitle()
 
-        # Search tab
-        self.searchTab = SearchTab(self, self.downloadWorker)
+        # Configure Search tab
+        self.searchTab = SearchTab(self, self._downloadThread)
         self.tabs.addTab(self.searchTab, "Search")
 
-        # Downloads tab
+        # Configure Downloads tab
         self.downloadsTab = DownloadsTab(self)
         self.tabs.addTab(self.downloadsTab, "Downloads")
+        mainLayout.addWidget(self.tabs)
 
-        # Set up Kindle device monitoring
-        self.kindle = KindleMonitorThread()
-        self.kindle.booksChanged.connect(self.libraryTab.kindleBooksChanged)
-        self.kindle.kindleConnected.connect(self.libraryTab.kindleConnected)
-        self.kindle.kindleDisconnected.connect(self.libraryTab.kindleDisconnected)
-        self.kindle.start()
+        # Set central widget
+        self.setCentralWidget(centralWidget)
 
-        # Create menu bar and add actions
+        # Set up menu bar and actions
         menuBar = self.menuBar()
-
-        # File menu
         fileMenu = menuBar.addMenu("File")
         importAction = fileMenu.addAction("Import Books...")
         importFromDirectoryAction = fileMenu.addAction("Import Books from Directory...")
         importAction.triggered.connect(self.importBooks)
         importFromDirectoryAction.triggered.connect(self.importBooksFromDirectory)
 
-        # Debug menu
         debugMenu = menuBar.addMenu("Debug")
         logViewerAction = debugMenu.addAction("View Logs")
         logViewerAction.triggered.connect(self.showLogViewer)
         showConfigFileAction = debugMenu.addAction("Edit Configuration File")
         showConfigFileAction.triggered.connect(self.editConfigFile)
-        # debugMenu.addSeparator()
-        # resetLibraryAction = debugMenu.addAction("Reset Library")
-        # resetLibraryAction.triggered.connect(self.resetLibrary)
 
-        # Help menu
         helpMenu = menuBar.addMenu("Help")
         aboutAction = helpMenu.addAction("About")
         aboutAction.triggered.connect(self.showAboutBox)
 
-        # Set up the status bar
-        statusBar = self.statusBar()
-        statusBar.showMessage("Ready")
+        # Set up status bar
+        self.statusBar().showMessage("Ready")
 
-        # Start the download worker
-        self.downloadWorker.start()
+        # Configure download thread
+        self._downloadThread.jobQueued.connect(self.downloadJobQueued)
+        self._downloadThread.statusChanged.connect(self.statusChanged)
+        self._downloadThread.downloadComplete.connect(self.downloadComplete)
+        self._downloadThread.start()
 
-        # Set the central widget
-        self.setCentralWidget(self.tabs)
-
-        # Show the log viewer window
-        self.logViewerWindow = None
+        # Initialize and configure Kindle device monitoring thread
+        self.kindleMonitorThread = KindleMonitorThread()
+        self.kindleMonitorThread.booksChanged.connect(self.libraryTab.kindleBooksChanged)
+        self.kindleMonitorThread.kindleConnected.connect(self.libraryTab.kindleConnected)
+        self.kindleMonitorThread.kindleDisconnected.connect(self.libraryTab.kindleDisconnected)
+        self.kindleMonitorThread.start()
 
     def verifyCalibreTools(self) -> bool:
         """
@@ -173,34 +150,34 @@ class MainWindow(QMainWindow):
         Log.info("Shutting down")
 
         # Close the log viewer window
-        if self.logViewerWindow:
-            self.logViewerWindow.close()
+        if self._logViewerWindow:
+            self._logViewerWindow.close()
 
         # Terminate the download worker
-        if self.downloadWorker:
+        if self._downloadThread:
             Log.info("Terminating download worker")
-            self.downloadWorker.terminate()
-            self.downloadWorker.wait()
+            self._downloadThread.terminate()
+            self._downloadThread.wait()
 
         # Terminate the import worker if running
-        if self.importWorker:
+        if self._importThread:
             Log.info("Terminating import worker")
             self.importWorker.terminate()
             self.importWorker.wait()
 
         # Terminate the conversion worker if running
-        if self.conversionWorker:
+        if self._conversionThread:
             Log.info("Terminating conversion worker")
-            self.conversionWorker.terminate()
-            self.conversionWorker.wait()
+            self._conversionThread.terminate()
+            self._conversionThread.wait()
 
         # Terminate the Kindle thread
-        if self.kindle:
+        if self.kindleMonitorThread:
             Log.info("Terminating Kindle thread")
-            self.kindle.stop()
-            self.kindle.wait()
+            self.kindleMonitorThread.stop()
+            self.kindleMonitorThread.wait()
 
-        event.accept()
+        super().closeEvent(event)
 
     def updateLibraryTabTitle(self):
         """
@@ -216,7 +193,7 @@ class MainWindow(QMainWindow):
         """
         Update the downloads tab title to include the number of jobs.
         """
-        numJobs = self.downloadWorker.queueSize()
+        numJobs = self._downloadThread.queueSize()
         if numJobs == 0:
             self.tabs.setTabText(2, "Downloads")
         else:
@@ -386,15 +363,15 @@ class MainWindow(QMainWindow):
         :param books: The books to send to the connected device.
         :type books: list[Book]
         """
-        self.conversionWorker = ConversionThread(self.kindle, books)
+        self._conversionThread = ConversionThread(self.kindleMonitorThread, books)
 
         # Connect conversion worker signals to slots
-        self.conversionWorker.conversionStarted.connect(self.conversionStarted)
-        self.conversionWorker.conversionSuccess.connect(self.conversionSuccess)
-        self.conversionWorker.conversionError.connect(self.conversionError)
-        self.conversionWorker.conversionFinished.connect(self.conversionFinished)
+        self._conversionThread.conversionStarted.connect(self.conversionStarted)
+        self._conversionThread.conversionSuccess.connect(self.conversionSuccess)
+        self._conversionThread.conversionError.connect(self.conversionError)
+        self._conversionThread.conversionFinished.connect(self.conversionFinished)
 
-        self.conversionWorker.start()
+        self._conversionThread.start()
 
     def conversionStarted(self):
         """
@@ -426,7 +403,7 @@ class MainWindow(QMainWindow):
         Handle the completion of the conversion process.
         """
         self.statusBar().showMessage("Conversion complete")
-        self.conversionWorker = None
+        self._conversionThread = None
 
     def showAboutBox(self):
         """
@@ -443,8 +420,8 @@ class MainWindow(QMainWindow):
         """
         Show the log viewer window.
         """
-        self.logViewerWindow = LogViewerWindow()
-        self.logViewerWindow.show()
+        self._logViewerWindow = LogViewerWindow()
+        self._logViewerWindow.show()
 
     @staticmethod
     def editConfigFile():

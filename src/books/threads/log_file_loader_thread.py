@@ -24,7 +24,8 @@ class LogFileLoaderThread(QThread):
         except Exception as e:
             self.logContentLoaded.emit([LogEntry(str(datetime.now()), "ERROR", f"Error reading log file: {e}")])
 
-    def tail(self, filename: Path, n: int) -> list:
+    @staticmethod
+    def tail(filename: Path, n: int) -> list:
         """
         Read the last n lines from a file efficiently.
 
@@ -62,9 +63,9 @@ class LogFileLoaderThread(QThread):
 
     @staticmethod
     def parse_log_line(line: str) -> LogEntry:
-        pattern = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (\w+) - (.+)"
+        pattern = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}) - (\w+) - (\w+) - (.+)"
         match = re.match(pattern, line)
         if match:
-            timestamp, level, message = match.groups()
-            return LogEntry(timestamp, level, message)
-        return LogEntry(str(datetime.now()), "ERROR", f"Failed to parse log line: {line}")
+            timestamp, source, level, message = match.groups()
+            return LogEntry(timestamp, source, level, message)
+        return LogEntry(str(datetime.now()), "BOOKS", "ERROR", f"Failed to parse log line: {line}")
