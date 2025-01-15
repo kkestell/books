@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         else:
             base = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.ConfigLocation)
 
-        return Path(base) / "settings.json"
+        return Path(base) / "config.json"
 
     @staticmethod
     def _get_platform_defaults() -> dict:
