@@ -1,5 +1,7 @@
 # Books
 
+Ebook library manager and LibGen client.
+
 ![Books](screenshot.png)
 
 ## Configuration
@@ -40,6 +42,14 @@ Install [Visual Studio 2022](https://www.visualstudio.com/en-us/downloads/downlo
 
 Install Xcode and [Python 3.12](https://www.python.org/downloads/mac-osx/).
 
+#### Linux
+
+##### Arch
+
+```
+yay -S python-beautifulsoup4 pyside6 python-requests python-psutil python-dateutil python-lxml python-thefuzz python-nh3
+```
+
 ### Build
 
 #### Linux
@@ -51,7 +61,7 @@ python -m nuitka --standalone --plugin-enable=pyside6 --output-filename=books ma
 #### Windows
 
 ```
-python -m nuitka --standalone --plugin-enable=pyside6 --disable-console --output-filename=books.exe main.py
+uv run python -m nuitka --standalone --plugin-enable=pyside6 --windows-console-mode=disable --output-filename=books.exe books/main.py
 ```
 
 #### macOS

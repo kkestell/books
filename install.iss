@@ -1,4 +1,4 @@
-#define SourceDir "C:\Users\Kyle\source\books"
+#define SourceDir "C:\Users\Kyle\Source\books"
 
 [Setup]
 AppId={{15B0BFB2-7A36-43D3-90C7-B714DCDC1F19}
@@ -30,7 +30,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#SourceDir}\publish\Books.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\main.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\Books"; Filename: "{app}\Books.exe"; IconFilename: "{app}\Books.exe"
