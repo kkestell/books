@@ -1,10 +1,10 @@
 # Thoth
 
+Ebook library manager and LibGen client.
+
 <p align="center">
     <img alt="Thoth" src="assets/icon.png">
 </p>
-
-Ebook library manager and LibGen client.
 
 ## Features
 
