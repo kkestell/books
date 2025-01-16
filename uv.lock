@@ -155,7 +155,7 @@ wheels = [
 ]
 
 [[package]]
-name = "books"
+name = "thoth"
 version = "0.4.0"
 source = { virtual = "." }
 dependencies = [

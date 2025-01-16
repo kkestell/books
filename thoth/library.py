@@ -20,7 +20,7 @@ class Library(QObject):
         super().__init__()
 
         home_location = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.HomeLocation))
-        self._library_path = home_location / "Books"
+        self._library_path = home_location / "Thoth"
         self._library_path.mkdir(parents=True, exist_ok=True)
 
         data_location = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation))

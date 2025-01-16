@@ -13,7 +13,7 @@ from main_window import MainWindow
 def main():
     QApplication.setStyle("fusion")
     app = QApplication(sys.argv)
-    app.setApplicationName("Books")
+    app.setApplicationName("Thoth")
 
     event_loop = QEventLoop(app)
     asyncio.set_event_loop(event_loop)

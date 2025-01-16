@@ -53,7 +53,7 @@ class MainWindow(ThemedWindow):
         self._import_thread = None
         self._conversion_thread = None
 
-        self.setWindowTitle("Books")
+        self.setWindowTitle("Thoth")
         self.resize(1280, 800)
         self.setAcceptDrops(True)
 
@@ -115,9 +115,9 @@ class MainWindow(ThemedWindow):
         import_action.triggered.connect(self.import_books)
         import_from_directory_action.triggered.connect(self.import_books_from_directory)
 
-        debug_menu = menu_bar.addMenu("Debug")
-        show_config_file_action = debug_menu.addAction("Edit Configuration File")
-        show_config_file_action.triggered.connect(self.edit_config_file)
+        # debug_menu = menu_bar.addMenu("Debug")
+        # show_config_file_action = debug_menu.addAction("Edit Configuration File")
+        # show_config_file_action.triggered.connect(self.edit_config_file)
 
         help_menu = menu_bar.addMenu("Help")
         about_action = help_menu.addAction("About")
@@ -233,11 +233,11 @@ class MainWindow(ThemedWindow):
         pass
 
     def show_about_box(self):
-        version = "0.2.0"
+        version = "0.5.0"
         QMessageBox.about(
             self,
-            f"Books v{version}",
-            "\"We are of opinion that instead of letting books grow moldy behind an iron grating, far from the vulgar gaze, it is better to let them wear out by being read.\"\n\n— Jules Verne"
+            f"Thoth v{version}",
+            "For know ye, O man, that all of the future is an open book to him who can read."
         )
 
     @staticmethod

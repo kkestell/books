@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     @staticmethod
     def _get_platform_defaults() -> dict:
         if sys.platform == 'win32':
-            library_path = Path.home() / "Books"
+            library_path = Path.home() / "Thoth"
             calibre_base = Path("C:\\Program Files\\Calibre2")
             return {
                 "library_path": str(library_path),
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
         elif sys.platform == 'darwin':
             home = Path.home()
             return {
-                "library_path": str(home / "Books"),
+                "library_path": str(home / "Thoth"),
                 "python_path": "",
                 "ebook_viewer_path": "/Applications/calibre.app/Contents/MacOS/ebook-viewer",
                 "ebook_meta_path": "/Applications/calibre.app/Contents/MacOS/ebook-meta",
@@ -54,7 +54,7 @@ class Settings(BaseSettings):
         else:
             home = Path.home()
             return {
-                "library_path": str(home / "Books"),
+                "library_path": str(home / "Thoth"),
                 "python_path": "",
                 "ebook_viewer_path": "/usr/bin/ebook-viewer",
                 "ebook_meta_path": "/usr/bin/ebook-meta",
