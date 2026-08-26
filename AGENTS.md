@@ -87,13 +87,40 @@ makes Coolify inject it into the Dockerfile as `ARG` and `ENV`, and the
 Dockerfile's `# check=error=true` turns BuildKit's warning about secrets in `ARG`
 or `ENV` into an error that fails the build.
 
-## The database does not survive a deployment
+## Persistent storage
 
-Production uses SQLite under `/rails/storage`, and the container runs with no
-volume mounted there. `bin/docker-entrypoint` runs `bin/rails db:prepare` at
-start, so every deployment and every restart begins with an empty database.
-Before storing anything that matters, attach a persistent volume with
-`coolify app storage`.
+The application has two Coolify storage mounts, managed with
+`coolify app storage`:
+
+`books-storage`
+: A named Docker volume at `/rails/storage`, on the VM's local disk. It holds
+the SQLite databases, which must never sit on a network mount.
+`bin/docker-entrypoint` runs `bin/rails db:prepare` at start, so a fresh volume
+is initialized automatically and an existing one survives deployments and
+restarts.
+
+`books-blobs`
+: A bind mount of the VM directory `/mnt/nas/books` at `/rails/blobs`. It holds
+the Active Storage blobs. Production uses the `nas` Disk service in
+`config/storage.yml`, whose root is `/rails/blobs`.
+
+`/mnt/nas/books` is the NAS's hidden `Books` Samba share — `//10.0.0.2/Books`,
+backed by `/mnt/archive/apps/books` on the NAS — CIFS-mounted through the VM's
+`/etc/fstab` with credentials in `/etc/cifs-books.cred`. The mount maps files to
+uid and gid 1000, the container's `rails` user. The NAS replicates the share's
+contents to its media pool nightly, so the blobs exist on two physical devices.
+
+The fstab entry is `nofail`: a NAS outage never blocks the VM's boot, but while
+the share is unmounted, blob reads and writes fail. A container sees only the
+mounts that existed when it started, so after remounting on the VM
+(`sudo mount /mnt/nas/books`), restart the application:
+
+```sh
+coolify app restart hrpve6kc1bx2wnd7y2pnioqf
+```
+
+The NAS share, mount options, and nightly replica are documented in the homelab
+notes at `~/src/proxmox`.
 
 ## Kamal is not used
 

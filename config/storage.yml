@@ -6,6 +6,12 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
+# Production blob storage: a bind mount of the NAS Books share (//10.0.0.2/Books),
+# mounted on the Coolify VM at /mnt/nas/books and into the container at /rails/blobs.
+nas:
+  service: Disk
+  root: /rails/blobs
+
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
 #   service: S3
