@@ -1,0 +1,10 @@
+<h1>Libraries</h1>
+
+<ul>
+  <% @libraries.each do |library| %>
+    <li>
+      <%= link_to library.name, library_path(library) %>
+      (<%= pluralize(library.books.count, "book") %>)
+    </li>
+  <% end %>
+</ul>

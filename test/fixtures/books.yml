@@ -1,0 +1,17 @@
+dune:
+  library: kyle
+  author: Frank Herbert
+  title: Dune
+  series: Dune
+  series_number: 1
+  published: 1965-08-01
+  book_type: Novel
+  format: EPUB
+
+circe:
+  library: liz
+  author: Madeline Miller
+  title: Circe
+  published: 2018-04-10
+  book_type: Novel
+  format: EPUB

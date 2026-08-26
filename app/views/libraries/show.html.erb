@@ -1,0 +1,38 @@
+<h1><%= @library.name %></h1>
+
+<p><%= link_to "All libraries", libraries_path %></p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Author</th>
+      <th>Title</th>
+      <th>Series</th>
+      <th>#</th>
+      <th>Published</th>
+      <th>Type</th>
+      <th>Format</th>
+      <th>File</th>
+      <th>Added</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @books.each do |book| %>
+      <tr>
+        <td><%= book.author %></td>
+        <td><%= book.title %></td>
+        <td><%= book.series %></td>
+        <td><%= book.series_number %></td>
+        <td><%= book.published %></td>
+        <td><%= book.book_type %></td>
+        <td><%= book.format %></td>
+        <td>
+          <% if book.file.attached? %>
+            <%= link_to book.file.filename, rails_blob_path(book.file, disposition: "attachment") %>
+          <% end %>
+        </td>
+        <td><%= book.created_at.to_date %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
