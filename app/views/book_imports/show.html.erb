@@ -1,0 +1,10 @@
+<% content_for :title, "Ebook import" %>
+
+<h1>Importing ebooks into <%= @library.name %></h1>
+
+<% if notice.present? %>
+  <p role="status"><%= notice %></p>
+<% end %>
+
+<%= turbo_stream_from @book_import %>
+<%= render "book_import", book_import: @book_import %>

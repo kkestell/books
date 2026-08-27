@@ -8,6 +8,20 @@ require "zip"
 class EbookMetadata
   class Error < StandardError; end
 
+  SUPPORTED_EXTENSIONS = %w[
+    .azw .azw3 .azw4 .cb7 .cbc .cbr .cbz .chm .djv .djvu .docx .epub .fb2
+    .fbz .htm .html .htmlz .kepub .lit .lrf .mobi .odt .pdf .pdb .pml .prc
+    .rb .rtf .snb .tcr .txt .txtz
+  ].freeze
+
+  def self.supported_filename?(filename)
+    SUPPORTED_EXTENSIONS.include?(File.extname(filename.to_s).downcase)
+  end
+
+  def self.accept_attribute
+    SUPPORTED_EXTENSIONS.join(",")
+  end
+
   def self.extract(io:, filename:, command: ENV.fetch("EBOOK_META_PATH", "ebook-meta"))
     new(io:, filename:, command:).extract
   end

@@ -1,0 +1,47 @@
+<section id="<%= dom_id(book_import) %>" class="book-import" aria-live="polite">
+  <p class="book-import__status">
+    <% if book_import.cancel_requested? && book_import.importing? %>
+      Cancelling after the current ebook…
+    <% elsif book_import.pending? %>
+      Waiting for the background importer…
+    <% elsif book_import.importing? %>
+      Importing ebooks…
+    <% elsif book_import.completed? %>
+      Import complete.
+    <% elsif book_import.cancelled? %>
+      Import cancelled.
+    <% else %>
+      Import stopped unexpectedly.
+    <% end %>
+  </p>
+
+  <progress max="<%= book_import.total_files %>" value="<%= book_import.processed_files %>">
+    <%= book_import.progress_percentage %>%
+  </progress>
+  <p>
+    <strong><%= book_import.progress_percentage %>%</strong>
+    — <%= book_import.processed_files %> of <%= book_import.total_files %> processed,
+    <%= book_import.imported_files %> imported,
+    <%= book_import.failed_files %> failed<% if book_import.ignored_files.positive? %>,
+    <%= book_import.ignored_files %> unsupported files ignored<% end %>.
+  </p>
+
+  <% if book_import.error_messages.any? %>
+    <details open>
+      <summary>Import errors</summary>
+      <ul>
+        <% book_import.error_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </details>
+  <% end %>
+
+  <% if book_import.cancellable? %>
+    <%= button_to "Cancel import", cancel_library_book_import_path(book_import.library, book_import),
+          method: :patch,
+          disabled: book_import.cancel_requested? %>
+  <% end %>
+
+  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library) %></p>
+</section>

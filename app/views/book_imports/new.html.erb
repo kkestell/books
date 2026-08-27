@@ -1,6 +1,6 @@
-<% content_for :title, "Import a book" %>
+<% content_for :title, "Import ebooks" %>
 
-<h1>Import a book into <%= @library.name %></h1>
+<h1>Import ebooks into <%= @library.name %></h1>
 
 <p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
 
@@ -8,11 +8,53 @@
   <p role="alert"><%= @error %></p>
 <% end %>
 
-<%= form_with url: library_book_import_path(@library), multipart: true do |form| %>
-  <p>
-    <%= form.label :file, "Ebook file" %><br>
-    <%= form.file_field :file, required: true %>
-  </p>
+<%= form_with url: library_book_imports_path(@library), multipart: true,
+      data: {
+        controller: "directory-import",
+        action: "direct-upload:initialize->directory-import#uploadInitialized direct-upload:progress->directory-import#uploadProgress direct-upload:end->directory-import#uploadEnded"
+      } do |form| %>
+  <fieldset>
+    <legend>Choose ebooks</legend>
 
-  <%= form.submit "Import book" %>
+    <p>
+      <%= form.label :directory, "Ebook directory" %><br>
+      <%= form.file_field :directory,
+            id: "ebook-directory",
+            name: "files[]",
+            accept: EbookMetadata.accept_attribute,
+            multiple: true,
+            webkitdirectory: true,
+            direct_upload: true,
+            data: {
+              directory_import_target: "input",
+              action: "change->directory-import#selectionChanged"
+            } %><br>
+      <small>Every supported ebook in this directory and its subdirectories will be imported.</small>
+    </p>
+
+    <p>Or choose individual ebooks:</p>
+
+    <p>
+      <%= form.label :individual_files, "Ebook files" %><br>
+      <%= form.file_field :individual_files,
+            id: "ebook-files",
+            name: "files[]",
+            accept: EbookMetadata.accept_attribute,
+            multiple: true,
+            direct_upload: true,
+            data: {
+              directory_import_target: "input",
+              action: "change->directory-import#selectionChanged"
+            } %>
+    </p>
+  </fieldset>
+
+  <p data-directory-import-target="selection" aria-live="polite">No ebooks selected.</p>
+
+  <section class="upload-progress" data-directory-import-target="upload" hidden aria-live="polite">
+    <p data-directory-import-target="uploadStatus">Uploading ebooks…</p>
+    <progress data-directory-import-target="uploadBar" max="100" value="0">0%</progress>
+  </section>
+
+  <%= form.submit "Start import", disabled: true, data: { directory_import_target: "submit" } %>
 <% end %>

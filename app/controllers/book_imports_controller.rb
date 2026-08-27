@@ -1,39 +1,72 @@
 class BookImportsController < ApplicationController
   before_action :set_library
+  before_action :set_book_import, only: [ :show, :cancel ]
 
   def new
   end
 
   def create
-    upload = params[:file]
+    uploads = Array(params[:files]).compact_blank
+    supported, ignored = uploads.partition { |upload| supported_upload?(upload) }
+    purge_unattached_direct_uploads(ignored)
 
-    unless upload.respond_to?(:tempfile)
-      @error = "Choose an ebook file to import."
+    if supported.empty?
+      @error = uploads.empty? ? "Choose an ebook directory or one or more ebook files." : "No supported ebooks were selected."
       return render :new, status: :unprocessable_entity
     end
 
-    metadata = EbookMetadata.extract(io: upload.tempfile, filename: upload.original_filename)
-    @book = @library.books.build({
-      author: "Unknown Author",
-      title: "Unknown Title",
-      format: File.extname(upload.original_filename).delete_prefix(".").upcase.presence
-    }.merge(metadata))
-    @book.file.attach(upload)
+    @book_import = @library.book_imports.create!(
+      total_files: supported.size,
+      ignored_files: ignored.size
+    )
+    @book_import.files.attach(supported)
+    BookImportJob.perform_later(@book_import)
 
-    if @book.save
-      redirect_to library_path(@library), notice: "#{@book.title} imported."
-    else
-      @error = @book.errors.full_messages.to_sentence
-      render :new, status: :unprocessable_entity
-    end
-  rescue EbookMetadata::Error => error
-    @error = error.message
+    redirect_to library_book_import_path(@library, @book_import)
+  rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveRecord::RecordNotFound
+    @error = "One or more uploads could not be found. Choose the directory again."
     render :new, status: :unprocessable_entity
+  end
+
+  def show
+  end
+
+  def cancel
+    @book_import.request_cancellation!
+    @book_import.broadcast_replace_to(
+      @book_import,
+      target: ActionView::RecordIdentifier.dom_id(@book_import),
+      partial: "book_imports/book_import",
+      locals: { book_import: @book_import }
+    )
+
+    redirect_to library_book_import_path(@library, @book_import), notice: "Cancellation requested."
   end
 
   private
 
   def set_library
-    @library = Library.find_by!(slug: params[:slug])
+    @library = Library.find_by!(slug: params[:library_slug])
+  end
+
+  def set_book_import
+    @book_import = @library.book_imports.find(params[:id])
+  end
+
+  def supported_upload?(upload)
+    EbookMetadata.supported_filename?(upload_filename(upload))
+  end
+
+  def upload_filename(upload)
+    return upload.original_filename if upload.respond_to?(:original_filename)
+
+    ActiveStorage::Blob.find_signed!(upload).filename.to_s
+  end
+
+  def purge_unattached_direct_uploads(uploads)
+    uploads.reject { |upload| upload.respond_to?(:original_filename) }.each do |signed_id|
+      blob = ActiveStorage::Blob.find_signed!(signed_id)
+      blob.purge unless blob.attachments.exists?
+    end
   end
 end

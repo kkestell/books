@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_004815) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_27_000000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,6 +37,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_004815) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "book_imports", force: :cascade do |t|
+    t.boolean "cancel_requested", default: false, null: false
+    t.datetime "created_at", null: false
+    t.text "error_messages"
+    t.integer "failed_files", default: 0, null: false
+    t.datetime "finished_at"
+    t.integer "ignored_files", default: 0, null: false
+    t.integer "imported_files", default: 0, null: false
+    t.integer "library_id", null: false
+    t.integer "processed_files", default: 0, null: false
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.integer "total_files", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["library_id"], name: "index_book_imports_on_library_id"
   end
 
   create_table "books", force: :cascade do |t|
@@ -66,5 +83,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_004815) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_imports", "libraries"
   add_foreign_key "books", "libraries"
 end

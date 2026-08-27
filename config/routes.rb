@@ -9,9 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :libraries, only: [ :index, :show ], param: :slug
-  get "libraries/:slug/books/import", to: "book_imports#new", as: :new_library_book_import
-  post "libraries/:slug/books/import", to: "book_imports#create", as: :library_book_import
+  resources :libraries, only: [ :index, :show ], param: :slug do
+    resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
+      patch :cancel, on: :member
+    end
+  end
 
   # Defines the root path route ("/")
   root "home#index"
