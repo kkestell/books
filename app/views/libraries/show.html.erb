@@ -1,6 +1,11 @@
 <h1><%= @library.name %></h1>
 
 <p><%= link_to "All libraries", libraries_path %></p>
+<p><%= link_to "Import a book", new_library_book_import_path(@library) %></p>
+
+<% if notice.present? %>
+  <p role="status"><%= notice %></p>
+<% end %>
 
 <table border="1">
   <thead>

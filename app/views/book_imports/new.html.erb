@@ -1,0 +1,18 @@
+<% content_for :title, "Import a book" %>
+
+<h1>Import a book into <%= @library.name %></h1>
+
+<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
+
+<% if @error.present? %>
+  <p role="alert"><%= @error %></p>
+<% end %>
+
+<%= form_with url: library_book_import_path(@library), multipart: true do |form| %>
+  <p>
+    <%= form.label :file, "Ebook file" %><br>
+    <%= form.file_field :file, required: true %>
+  </p>
+
+  <%= form.submit "Import book" %>
+<% end %>

@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   resources :libraries, only: [ :index, :show ], param: :slug
+  get "libraries/:slug/books/import", to: "book_imports#new", as: :new_library_book_import
+  post "libraries/:slug/books/import", to: "book_imports#create", as: :library_book_import
 
   # Defines the root path route ("/")
   root "home#index"
