@@ -3,7 +3,7 @@
 <h1>Importing ebooks into <%= @library.name %></h1>
 
 <% if notice.present? %>
-  <p role="status"><%= notice %></p>
+  <div class="alert alert-success" role="status"><%= notice %></div>
 <% end %>
 
 <%= turbo_stream_from @book_import %>

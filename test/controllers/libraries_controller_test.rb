@@ -13,6 +13,9 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     get library_path("kyle")
     assert_response :success
     assert_select "h1", text: "Kyle"
+    assert_select "main.container-fluid"
+    assert_select "div.table-responsive.w-100"
+    assert_select "table.table.w-100"
     assert_select "td", text: "Dune"
   end
 

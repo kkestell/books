@@ -40,8 +40,9 @@
   <% if book_import.cancellable? %>
     <%= button_to "Cancel import", cancel_library_book_import_path(book_import.library, book_import),
           method: :patch,
+          class: "btn btn-outline-danger",
           disabled: book_import.cancel_requested? %>
   <% end %>
 
-  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library) %></p>
+  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library), class: "btn btn-primary" %></p>
 </section>

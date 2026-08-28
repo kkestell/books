@@ -2,10 +2,10 @@
 
 <h1>Import ebooks into <%= @library.name %></h1>
 
-<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
+<p><%= link_to "Back to #{@library.name}", library_path(@library), class: "btn btn-outline-secondary" %></p>
 
 <% if @error.present? %>
-  <p role="alert"><%= @error %></p>
+  <div class="alert alert-danger" role="alert"><%= @error %></div>
 <% end %>
 
 <%= form_with url: library_book_imports_path(@library), multipart: true,
@@ -13,12 +13,13 @@
         controller: "directory-import",
         action: "direct-upload:initialize->directory-import#uploadInitialized direct-upload:progress->directory-import#uploadProgress direct-upload:end->directory-import#uploadEnded"
       } do |form| %>
-  <fieldset>
+  <fieldset class="border rounded p-3 mb-3">
     <legend>Choose ebooks</legend>
 
     <p>
       <%= form.label :directory, "Ebook directory" %><br>
       <%= form.file_field :directory,
+            class: "form-control",
             id: "ebook-directory",
             name: "files[]",
             accept: EbookMetadata.accept_attribute,
@@ -37,6 +38,7 @@
     <p>
       <%= form.label :individual_files, "Ebook files" %><br>
       <%= form.file_field :individual_files,
+            class: "form-control",
             id: "ebook-files",
             name: "files[]",
             accept: EbookMetadata.accept_attribute,
@@ -56,5 +58,5 @@
     <progress data-directory-import-target="uploadBar" max="100" value="0">0%</progress>
   </section>
 
-  <%= form.submit "Start import", disabled: true, data: { directory_import_target: "submit" } %>
+  <%= form.submit "Start import", class: "btn btn-primary", disabled: true, data: { directory_import_target: "submit" } %>
 <% end %>
