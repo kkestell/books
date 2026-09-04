@@ -5,6 +5,10 @@ privately at `https://books.kestell.org`. The name has no public DNS record and
 the server accepts nothing from the public internet, so the site answers only
 from the LAN or over Tailscale.
 
+## Workflow
+
+Commit and deploy often.
+
 ## Where it runs
 
 Application

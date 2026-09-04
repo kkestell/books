@@ -10,12 +10,22 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show lists a library's books by slug" do
+    books(:dune).file.attach(
+      io: file_fixture("dune.epub").open,
+      filename: "dune.epub",
+      content_type: "application/epub+zip"
+    )
+
     get library_path("kyle")
     assert_response :success
     assert_select "h1", text: "Kyle"
     assert_select "main.container-fluid"
     assert_select "div.table-responsive.w-100"
-    assert_select "table.table.w-100"
+    assert_select "table.table.w-100.library-books"
+    assert_select "th", text: "File", count: 0
+    assert_select "tr[data-action='contextmenu->context-menu#open'][data-context-menu-download-url]", count: 1
+    assert_select "[data-context-menu-target='menu'][hidden]"
+    assert_select "a[data-context-menu-target='download']", text: "Download"
     assert_select "td", text: "Dune"
   end
 

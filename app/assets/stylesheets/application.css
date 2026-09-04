@@ -24,3 +24,78 @@ progress {
   font-size: 1.15rem;
   font-weight: 600;
 }
+
+.library-books {
+  min-width: 60rem;
+  font-size: 0.875rem;
+  table-layout: fixed;
+}
+
+.library-books th,
+.library-books td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-books__author {
+  width: 17%;
+}
+
+.library-books__title {
+  width: 25%;
+}
+
+.library-books__series {
+  width: 18%;
+}
+
+.library-books__series-number {
+  width: 4%;
+}
+
+.library-books__published {
+  width: 10%;
+}
+
+.library-books__type {
+  width: 9%;
+}
+
+.library-books__format {
+  width: 7%;
+}
+
+.library-books__added {
+  width: 10%;
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 1080;
+  min-width: 10rem;
+  padding: 0.35rem;
+  background: var(--bs-body-bg, #fff);
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+}
+
+.context-menu[hidden] {
+  display: none;
+}
+
+.context-menu__item {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--bs-body-color, #212529);
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+.context-menu__item:hover,
+.context-menu__item:focus {
+  color: var(--bs-body-color, #212529);
+  background: var(--bs-tertiary-bg, #f8f9fa);
+  outline: none;
+}

@@ -1,24 +1,34 @@
-# README
+# Books
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A private Rails application for importing and browsing ebook libraries.
 
-Things you may want to cover:
+## Run locally with demo data
 
-* Ruby version
+Run the setup script from the repository root:
 
-* System dependencies
+```sh
+bin/setup
+```
 
-* Configuration
+It installs missing gems, prepares the development database, adds a dozen
+downloadable demo books to Kyle's library, and starts the app. Open
+<http://localhost:3000/libraries/kyle>.
 
-* Database creation
+The seeds are idempotent, so they are safe to run again without duplicating the
+demo books:
 
-* Database initialization
+```sh
+bin/rails db:seed
+bin/dev
+```
 
-* How to run the test suite
+Use `bin/setup --reset` when you want to rebuild the local database from
+scratch. Demo books are created only in development; production seeds create
+the empty Kyle and Liz libraries.
 
-* Services (job queues, cache servers, search engines, etc.)
+## Test
 
-* Deployment instructions
-
-* ...
+```sh
+bin/rails test
+bin/rails test:system
+```
