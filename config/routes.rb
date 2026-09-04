@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  get "libgen-search", to: "libgen_searches#show", as: :libgen_search
+
   resources :libraries, only: [ :index, :show ], param: :slug do
     resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
       patch :cancel, on: :member

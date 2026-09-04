@@ -66,3 +66,5 @@ group :test do
   gem "minitest-mock"
   gem "selenium-webdriver"
 end
+
+gem "nokogiri", "~> 1.19"
