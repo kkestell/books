@@ -21,9 +21,10 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Kyle"
     assert_select "main table"
     assert_select "th", text: "File", count: 0
-    assert_select "tr[data-action='contextmenu->context-menu#open'][data-context-menu-download-url]", count: 1
-    assert_select "[data-context-menu-target='menu'][hidden]"
-    assert_select "a[data-context-menu-target='download']", text: "Download"
+    assert_select "td a", text: "Dune",
+      href: edit_library_book_path(libraries(:kyle), books(:dune))
+    assert_select "td a", text: "azw3",
+      href: download_library_book_path(libraries(:kyle), books(:dune))
     assert_select "td", text: "Dune"
   end
 

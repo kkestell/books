@@ -13,46 +13,33 @@
   <p role="status"><%= notice %></p>
 <% end %>
 
-<div data-controller="context-menu"
-     data-action="click@window->context-menu#close contextmenu@window->context-menu#close keydown.esc@window->context-menu#close resize@window->context-menu#close scroll@window->context-menu#close">
-  <table>
-    <thead>
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Author</th>
+      <th scope="col">Title</th>
+      <th scope="col">Series</th>
+      <th scope="col">#</th>
+      <th scope="col">Published</th>
+      <th scope="col">Type</th>
+      <th scope="col">Format</th>
+      <th scope="col">Added</th>
+      <th scope="col">Download</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @books.each do |book| %>
       <tr>
-        <th scope="col">Author</th>
-        <th scope="col">Title</th>
-        <th scope="col">Series</th>
-        <th scope="col">#</th>
-        <th scope="col">Published</th>
-        <th scope="col">Type</th>
-        <th scope="col">Format</th>
-        <th scope="col">Added</th>
-        <th scope="col">Download</th>
+        <td title="<%= book.author %>"><%= book.author %></td>
+        <td title="<%= book.title %>"><%= link_to book.title, edit_library_book_path(@library, book) %></td>
+        <td title="<%= book.series %>"><%= book.series %></td>
+        <td title="<%= book.series_number %>"><%= book.series_number %></td>
+        <td title="<%= book.published %>"><%= book.published %></td>
+        <td title="<%= book.book_type %>"><%= book.book_type %></td>
+        <td title="<%= book.format %>"><%= book.format %></td>
+        <td title="<%= book.created_at.to_date %>"><%= book.created_at.to_date %></td>
+        <td><%= link_to "azw3", download_library_book_path(@library, book) if book.file.attached? %></td>
       </tr>
-    </thead>
-    <tbody>
-      <% @books.each do |book| %>
-        <tr tabindex="0"
-            data-action="contextmenu->context-menu#open"
-            data-context-menu-edit-url="<%= edit_library_book_path(@library, book) %>"
-            <%- if book.file.attached? %>
-            data-context-menu-download-url="<%= rails_blob_path(book.file, disposition: "attachment") %>"
-            <%- end %>>
-          <td title="<%= book.author %>"><%= book.author %></td>
-          <td title="<%= book.title %>"><%= book.title %></td>
-          <td title="<%= book.series %>"><%= book.series %></td>
-          <td title="<%= book.series_number %>"><%= book.series_number %></td>
-          <td title="<%= book.published %>"><%= book.published %></td>
-          <td title="<%= book.book_type %>"><%= book.book_type %></td>
-          <td title="<%= book.format %>"><%= book.format %></td>
-          <td title="<%= book.created_at.to_date %>"><%= book.created_at.to_date %></td>
-          <td><%= link_to "azw3", download_library_book_path(@library, book) if book.file.attached? %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-
-  <div class="context-menu" data-context-menu-target="menu" role="menu" aria-label="Book actions" hidden>
-    <a class="context-menu__item" data-context-menu-target="edit" role="menuitem">Edit</a>
-    <a class="context-menu__item" data-context-menu-target="download" role="menuitem" download>Download</a>
-  </div>
-</div>
+    <% end %>
+  </tbody>
+</table>

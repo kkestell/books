@@ -17,17 +17,14 @@ class LibrariesTest < ApplicationSystemTestCase
     assert_selector "main table"
     assert_text "Dune"
 
-    find("tbody tr", text: "Dune").right_click
-    assert_selector ".context-menu:not([hidden])"
-    assert_link "Download", href: %r{/rails/active_storage/blobs/}
-    assert_link "Edit", href: edit_library_book_path(libraries(:kyle), books(:dune))
+    assert_link "Dune", href: edit_library_book_path(libraries(:kyle), books(:dune))
+    assert_link "azw3", href: download_library_book_path(libraries(:kyle), books(:dune))
   end
 
   test "editing a book" do
     visit library_path(libraries(:kyle))
 
-    find("tbody tr", text: "Dune").right_click
-    click_on "Edit"
+    click_on "Dune"
 
     assert_selector "h1", text: "Edit Dune"
     fill_in "Author", with: "Frank P. Herbert"
