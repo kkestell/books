@@ -1,7 +1,9 @@
 kyle:
+  user: kyle
   name: Kyle
   slug: kyle
 
 liz:
+  user: liz
   name: Liz
   slug: liz

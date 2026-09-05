@@ -38,10 +38,10 @@
   <% end %>
 
   <% if book_import.cancellable? %>
-    <%= button_to "Cancel import", cancel_library_book_import_path(book_import.library, book_import),
+    <%= button_to "Cancel import", cancel_book_import_path(book_import),
           method: :patch,
           disabled: book_import.cancel_requested? %>
   <% end %>
 
-  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library) %></p>
+  <p><%= link_to "View the library", root_path %></p>
 </section>

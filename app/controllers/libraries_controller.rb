@@ -1,10 +1,6 @@
 class LibrariesController < ApplicationController
-  def index
-    @libraries = Library.order(:name)
-  end
-
   def show
-    @library = Library.find_by!(slug: params[:slug])
+    @library = current_user.library
     @books = @library.books.order(:author, :title)
   end
 end

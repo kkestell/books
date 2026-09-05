@@ -1,0 +1,13 @@
+<% content_for :title, "Log in" %>
+
+<h1>Books</h1>
+
+<% if alert.present? %>
+  <p role="alert"><%= alert %></p>
+<% end %>
+
+<ul>
+  <% User.order(:username).each do |user| %>
+    <li><%= link_to "Log in as #{user.username.capitalize}", login_user_path(user.username) %></li>
+  <% end %>
+</ul>

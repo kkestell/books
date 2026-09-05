@@ -14,3 +14,13 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+module ActionDispatch
+  class IntegrationTest
+    def log_in_as(user)
+      get login_user_path(user.username)
+      assert_redirected_to root_path
+      follow_redirect!
+    end
+  end
+end

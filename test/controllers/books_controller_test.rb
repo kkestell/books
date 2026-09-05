@@ -2,12 +2,12 @@ require "test_helper"
 
 class BooksControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @library = libraries(:kyle)
+    log_in_as(users(:kyle))
     @book = books(:dune)
   end
 
   test "edit renders the form" do
-    get edit_library_book_path(@library, @book)
+    get edit_book_path(@book)
 
     assert_response :ok
     assert_select "form"
@@ -17,11 +17,11 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update saves the book and redirects to the library" do
-    patch library_book_path(@library, @book), params: { book: {
+    patch book_path(@book), params: { book: {
       title: "Dune Messiah", series: "Dune", series_number: "2", published: "1969-01-01"
     } }
 
-    assert_redirected_to library_path(@library)
+    assert_redirected_to root_path
     @book.reload
     assert_equal "Dune Messiah", @book.title
     assert_equal 2, @book.series_number
@@ -29,23 +29,25 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update clears a series that has no number" do
-    patch library_book_path(@library, @book), params: { book: { series: "Dune", series_number: "" } }
+    patch book_path(@book), params: { book: { series: "Dune", series_number: "" } }
 
-    assert_redirected_to library_path(@library)
+    assert_redirected_to root_path
     @book.reload
     assert_nil @book.series
     assert_nil @book.series_number
   end
 
   test "update rejects a blank title" do
-    patch library_book_path(@library, @book), params: { book: { title: "" } }
+    patch book_path(@book), params: { book: { title: "" } }
 
     assert_response :unprocessable_entity
     assert_equal "Dune", @book.reload.title
   end
 
-  test "update does not expose another library's book" do
-    patch library_book_path(libraries(:liz), @book), params: { book: { title: "Stolen" } }
+  test "update does not expose another user's book" do
+    log_in_as(users(:liz))
+
+    patch book_path(@book), params: { book: { title: "Stolen" } }
 
     assert_response :not_found
   end
@@ -60,7 +62,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
       content_type: EbookConversion::CONTENT_TYPE)
 
     EbookConversion.stub(:convert, result) do
-      get download_library_book_path(@library, @book)
+      get download_book_path(@book)
     end
 
     assert_response :ok
@@ -76,21 +78,23 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     error = EbookConversion::Error.new("ebook-convert is not available.")
 
     EbookConversion.stub(:convert, lambda { |_| raise error }) do
-      get download_library_book_path(@library, @book)
+      get download_book_path(@book)
     end
 
-    assert_redirected_to library_path(@library)
+    assert_redirected_to root_path
     assert_equal "ebook-convert is not available.", flash[:alert]
   end
 
   test "download rejects a book without a file" do
-    get download_library_book_path(@library, @book)
+    get download_book_path(@book)
 
     assert_response :not_found
   end
 
-  test "download does not expose another library's book" do
-    get download_library_book_path(libraries(:liz), @book)
+  test "download does not expose another user's book" do
+    log_in_as(users(:liz))
+
+    get download_book_path(@book)
 
     assert_response :not_found
   end

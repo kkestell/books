@@ -9,22 +9,25 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :libraries, only: [ :index, :show ], param: :slug do
-    resources :books, only: [ :edit, :update ] do
-      get :download, on: :member
-    end
+  get "login", to: "sessions#new", as: :login
+  get "login/:username", to: "sessions#create", as: :login_user
+  delete "logout", to: "sessions#destroy", as: :logout
 
-    resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
-      patch :cancel, on: :member
-    end
+  # The library is the logged-in user's, so everything is scoped through the
+  # session instead of through a library slug in the URL.
+  root "libraries#show"
 
-    resources :libgen_searches, path: "libgen-search", only: [ :new, :create, :show ] do
-      post :download, on: :member, controller: "book_downloads"
-    end
+  resources :books, only: [ :edit, :update ] do
+    get :download, on: :member
+  end
+
+  resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
+    patch :cancel, on: :member
+  end
+
+  resources :libgen_searches, path: "libgen-search", only: [ :new, :create, :show ] do
+    post :download, on: :member, controller: "book_downloads"
   end
 
   get "downloads", to: "downloads#index"
-
-  # Defines the root path route ("/")
-  root "home#index"
 end

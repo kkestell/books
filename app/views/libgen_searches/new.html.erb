@@ -2,13 +2,13 @@
 
 <h1>Search Libgen in <%= @library.name %></h1>
 
-<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
+<p><%= link_to "Back to the library", root_path %></p>
 
 <% if @error.present? %>
   <p role="alert"><%= @error %></p>
 <% end %>
 
-<%= form_with url: library_libgen_searches_path(@library) do |form| %>
+<%= form_with url: libgen_searches_path do |form| %>
   <p>
     <%= form.label :author, "Author" %>
     <%= form.text_field :author, placeholder: "Author..." %>

@@ -22,7 +22,7 @@ class BookImportsController < ApplicationController
     @book_import.files.attach(supported)
     BookImportJob.perform_later(@book_import)
 
-    redirect_to library_book_import_path(@library, @book_import)
+    redirect_to book_import_path(@book_import)
   rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveRecord::RecordNotFound
     @error = "One or more uploads could not be found. Choose the directory again."
     render :new, status: :unprocessable_entity
@@ -40,13 +40,13 @@ class BookImportsController < ApplicationController
       locals: { book_import: @book_import }
     )
 
-    redirect_to library_book_import_path(@library, @book_import), notice: "Cancellation requested."
+    redirect_to book_import_path(@book_import), notice: "Cancellation requested."
   end
 
   private
 
   def set_library
-    @library = Library.find_by!(slug: params[:library_slug])
+    @library = current_user.library
   end
 
   def set_book_import

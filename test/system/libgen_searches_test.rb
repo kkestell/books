@@ -3,9 +3,7 @@ require "application_system_test_case"
 class LibgenSearchesTest < ApplicationSystemTestCase
   test "starting a search shows the pending status page" do
     visit root_path
-
-    click_on "Browse libraries"
-    click_on "Kyle"
+    click_on "Log in as Kyle"
     click_on "Search Libgen"
 
     assert_selector "h1", text: "Search Libgen in Kyle"
@@ -23,7 +21,8 @@ class LibgenSearchesTest < ApplicationSystemTestCase
   test "a completed search shows its results" do
     search = completed_search_with_result
 
-    visit library_libgen_search_path(libraries(:kyle), search)
+    log_in_as(users(:kyle))
+    visit libgen_search_path(search)
 
     assert_selector "h1", text: "Search Libgen in Kyle"
     assert_text "Search complete. 1 result found."
@@ -34,7 +33,8 @@ class LibgenSearchesTest < ApplicationSystemTestCase
   test "a search result without a download shows a download button" do
     search = completed_search_with_result
 
-    visit library_libgen_search_path(libraries(:kyle), search)
+    log_in_as(users(:kyle))
+    visit libgen_search_path(search)
 
     assert_button "Download"
     assert_no_text "Downloading…"
@@ -44,7 +44,8 @@ class LibgenSearchesTest < ApplicationSystemTestCase
     search = completed_search_with_result
     search.results.first.book_downloads.create!(library: libraries(:kyle), status: :running)
 
-    visit library_libgen_search_path(libraries(:kyle), search)
+    log_in_as(users(:kyle))
+    visit libgen_search_path(search)
 
     assert_text "Downloading…"
     assert_no_button "Download"
@@ -54,9 +55,10 @@ class LibgenSearchesTest < ApplicationSystemTestCase
     search = completed_search_with_result
     search.results.first.book_downloads.create!(library: libraries(:kyle), status: :completed)
 
-    visit library_libgen_search_path(libraries(:kyle), search)
+    log_in_as(users(:kyle))
+    visit libgen_search_path(search)
 
-    assert_link "In library", href: library_path(libraries(:kyle))
+    assert_link "In library", href: root_path
   end
 
   test "a failed download offers a retry with the error" do
@@ -64,7 +66,8 @@ class LibgenSearchesTest < ApplicationSystemTestCase
     search.results.first.book_downloads.create!(library: libraries(:kyle), status: :failed,
       error: "The Libgen server did not return the requested file.")
 
-    visit library_libgen_search_path(libraries(:kyle), search)
+    log_in_as(users(:kyle))
+    visit libgen_search_path(search)
 
     assert_button "Retry download"
     assert_selector "button[title='The Libgen server did not return the requested file.']"

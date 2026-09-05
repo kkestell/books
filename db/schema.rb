@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_05_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_05_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -120,7 +120,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_05_000000) do
     t.string "name", null: false
     t.string "slug", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
     t.index ["slug"], name: "index_libraries_on_slug", unique: true
+    t.index ["user_id"], name: "index_libraries_on_user_id", unique: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "username", null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -131,4 +140,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_05_000000) do
   add_foreign_key "books", "libraries"
   add_foreign_key "libgen_search_results", "libgen_searches"
   add_foreign_key "libgen_searches", "libraries"
+  add_foreign_key "libraries", "users"
 end

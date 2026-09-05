@@ -10,12 +10,12 @@
     <% if book_download&.pending? || book_download&.running? %>
       <span aria-live="polite">Downloading…</span>
     <% elsif book_download&.completed? %>
-      <%= link_to "In library", library_path(libgen_search.library) %>
+      <%= link_to "In library", root_path %>
     <% elsif book_download&.failed? %>
-      <%= button_to "Retry download", download_library_libgen_search_path(libgen_search.library, libgen_search),
+      <%= button_to "Retry download", download_libgen_search_path(libgen_search),
             params: { result_id: result.id }, title: book_download.error %>
     <% else %>
-      <%= button_to "Download", download_library_libgen_search_path(libgen_search.library, libgen_search),
+      <%= button_to "Download", download_libgen_search_path(libgen_search),
             params: { result_id: result.id } %>
     <% end %>
   </td>

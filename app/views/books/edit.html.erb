@@ -2,7 +2,7 @@
 
 <h1>Edit <%= @book.title %></h1>
 
-<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
+<p><%= link_to "Back to the library", root_path %></p>
 
 <% if @book.errors.any? %>
   <ul role="alert">
@@ -12,7 +12,7 @@
   </ul>
 <% end %>
 
-<%= form_with model: [ @library, @book ] do |form| %>
+<%= form_with model: @book do |form| %>
   <p>
     <%= form.label :title %><br>
     <%= form.text_field :title %>

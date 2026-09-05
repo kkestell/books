@@ -3,9 +3,10 @@ require "stringio"
 {
   "kyle" => "Kyle",
   "liz" => "Liz"
-}.each do |slug, name|
-  library = Library.find_or_initialize_by(slug: slug)
-  library.update!(name: name)
+}.each do |username, name|
+  user = User.find_or_create_by!(username: username)
+  library = Library.find_or_initialize_by(user: user)
+  library.update!(name: name, slug: username)
 end
 
 if Rails.env.development?

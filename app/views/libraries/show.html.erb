@@ -3,9 +3,9 @@
 <header>
   <h1><%= @library.name %></h1>
   <nav>
-    <%= link_to "All libraries", libraries_path %>
-    <%= link_to "Search Libgen", new_library_libgen_search_path(@library) %>
-    <%= link_to "Import ebooks", new_library_book_import_path(@library) %>
+    <%= link_to "Downloads", downloads_path %>
+    <%= link_to "Search Libgen", new_libgen_search_path %>
+    <%= link_to "Import ebooks", new_book_import_path %>
   </nav>
 </header>
 
@@ -35,7 +35,7 @@
     <% @books.each do |book| %>
       <tr>
         <td title="<%= book.author %>"><%= book.author %></td>
-        <td title="<%= book.title %>"><%= link_to book.title, edit_library_book_path(@library, book) %></td>
+        <td title="<%= book.title %>"><%= link_to book.title, edit_book_path(book) %></td>
         <td title="<%= book.series %>"><%= book.series %></td>
         <td title="<%= book.series_number %>"><%= book.series_number %></td>
         <td title="<%= book.published %>"><%= book.published %></td>
@@ -47,7 +47,7 @@
             <% if book.format.to_s.casecmp?("pdf") %>
               <%= link_to "pdf", rails_blob_path(book.file, disposition: "attachment") %>
             <% else %>
-              <%= link_to "azw3", download_library_book_path(@library, book) %>
+              <%= link_to "azw3", download_book_path(book) %>
             <% end %>
           <% end %>
         </td>

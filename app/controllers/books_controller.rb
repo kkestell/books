@@ -7,7 +7,7 @@ class BooksController < ApplicationController
 
   def update
     if @book.update(book_params)
-      redirect_to library_path(@library), notice: "Book updated."
+      redirect_to root_path, notice: "Book updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -24,13 +24,13 @@ class BooksController < ApplicationController
     end
   rescue EbookConversion::Error => error
     Rails.logger.error("Book #{@book.id} could not be converted: #{error.message}")
-    redirect_to library_path(@library), alert: error.message
+    redirect_to root_path, alert: error.message
   end
 
   private
 
   def set_library
-    @library = Library.find_by!(slug: params[:library_slug])
+    @library = current_user.library
   end
 
   def set_book

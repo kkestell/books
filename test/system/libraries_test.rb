@@ -1,7 +1,7 @@
 require "application_system_test_case"
 
 class LibrariesTest < ApplicationSystemTestCase
-  test "browsing a library" do
+  test "browsing the library" do
     books(:dune).file.attach(
       io: file_fixture("dune.epub").open,
       filename: "dune.epub",
@@ -9,20 +9,19 @@ class LibrariesTest < ApplicationSystemTestCase
     )
 
     visit root_path
-
-    click_on "Browse libraries"
-    click_on "Kyle"
+    click_on "Log in as Kyle"
 
     assert_selector "h1", text: "Kyle"
     assert_selector "main table"
     assert_text "Dune"
 
-    assert_link "Dune", href: edit_library_book_path(libraries(:kyle), books(:dune))
-    assert_link "azw3", href: download_library_book_path(libraries(:kyle), books(:dune))
+    assert_link "Dune", href: edit_book_path(books(:dune))
+    assert_link "azw3", href: download_book_path(books(:dune))
   end
 
   test "editing a book" do
-    visit library_path(libraries(:kyle))
+    visit root_path
+    click_on "Log in as Kyle"
 
     click_on "Dune"
 

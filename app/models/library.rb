@@ -1,5 +1,8 @@
 class Library < ApplicationRecord
+  belongs_to :user
+
   has_many :books, dependent: :destroy
+  has_many :book_downloads, dependent: :destroy
   has_many :book_imports, dependent: :destroy
   has_many :libgen_searches, dependent: :destroy
 

@@ -2,14 +2,15 @@ require "test_helper"
 
 class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
   setup do
+    log_in_as(users(:kyle))
     @library = libraries(:kyle)
   end
 
   test "new renders the search form" do
-    get new_library_libgen_search_path(@library)
+    get new_libgen_search_path
     assert_response :success
     assert_select "h1", text: "Search Libgen in #{@library.name}"
-    assert_select "form[action='#{library_libgen_searches_path(@library)}'][method='post']"
+    assert_select "form[action='#{libgen_searches_path}'][method='post']"
     assert_select "input[name='author']"
     assert_select "input[name='title']"
     assert_select "select[name='format'] option", count: Libgen::Scraper::SEARCH_FORMATS.size + 1
@@ -18,7 +19,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
 
   test "create rejects a search without author or title" do
     assert_no_difference "LibgenSearch.count" do
-      post library_libgen_searches_path(@library), params: { author: " ", title: "" }
+      post libgen_searches_path, params: { author: " ", title: "" }
     end
 
     assert_response :unprocessable_entity
@@ -27,7 +28,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
 
   test "create stores the search, enqueues the job, and redirects" do
     assert_enqueued_with(job: LibgenSearchJob) do
-      post library_libgen_searches_path(@library),
+      post libgen_searches_path,
         params: { author: " Nia Calder ", title: "lantern", format: "EPUB" }
     end
 
@@ -37,11 +38,11 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "lantern", search.title
     assert_equal "EPUB", search.format
     assert search.pending?
-    assert_redirected_to library_libgen_search_path(@library, search)
+    assert_redirected_to libgen_search_path(search)
   end
 
   test "create ignores an unknown format" do
-    post library_libgen_searches_path(@library), params: { author: "Nia Calder", format: "DOCX" }
+    post libgen_searches_path, params: { author: "Nia Calder", format: "DOCX" }
 
     assert_equal "", LibgenSearch.last.format
   end
@@ -53,7 +54,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
       title: "The Cartographer's Lantern", format: "EPUB", size: "2.1 MB", score: 100,
       mirrors: [ "https://libgen.li/ads/one" ])
 
-    get library_libgen_search_path(@library, search)
+    get libgen_search_path(search)
 
     assert_response :success
     assert_select "section[aria-live='polite'] p", text: "Search complete. 1 result found."
@@ -65,16 +66,16 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
     search = @library.libgen_searches.create!(author: "Nia Calder", title: "", format: "",
       status: :failed, error: "HTTP Error 403")
 
-    get library_libgen_search_path(@library, search)
+    get libgen_search_path(search)
 
     assert_response :success
     assert_select "section[aria-live='polite'] p", text: "Search failed: HTTP Error 403"
   end
 
-  test "show does not expose another library's search" do
+  test "show does not expose another user's search" do
     search = libraries(:liz).libgen_searches.create!(author: "Nia Calder", title: "", format: "")
 
-    get library_libgen_search_path(@library, search)
+    get libgen_search_path(search)
 
     assert_response :not_found
   end

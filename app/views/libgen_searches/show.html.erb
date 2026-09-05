@@ -3,8 +3,8 @@
 <h1>Search Libgen in <%= @library.name %></h1>
 
 <p>
-  <%= link_to "Back to #{@library.name}", library_path(@library) %>
-  <%= link_to "New search", new_library_libgen_search_path(@library) %>
+  <%= link_to "Back to the library", root_path %>
+  <%= link_to "New search", new_libgen_search_path %>
 </p>
 
 <%= turbo_stream_from @libgen_search %>
