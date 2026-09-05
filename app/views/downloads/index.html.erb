@@ -1,0 +1,33 @@
+<% content_for :title, "Downloads" %>
+
+<h1>Downloads</h1>
+
+<p><%= link_to "All libraries", libraries_path %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Author</th>
+      <th scope="col">Title</th>
+      <th scope="col">Series</th>
+      <th scope="col">Format</th>
+      <th scope="col">Size</th>
+      <th scope="col">Library</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @downloads.each do |download| %>
+      <% result = download.libgen_search_result %>
+      <tr>
+        <td title="<%= result.author %>"><%= result.author %></td>
+        <td title="<%= result.title %>"><%= result.title %></td>
+        <td title="<%= result.series %>"><%= result.series %></td>
+        <td><%= result.format %></td>
+        <td><%= result.size %></td>
+        <td><%= link_to download.library.name, library_path(download.library) %></td>
+        <td title="<%= download.error %>"><%= download.status.capitalize %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

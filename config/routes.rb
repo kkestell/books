@@ -23,6 +23,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get "downloads", to: "downloads#index"
+
   # Defines the root path route ("/")
   root "home#index"
 end
