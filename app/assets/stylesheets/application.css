@@ -1,3 +1,31 @@
 /*
- * Everything on the site uses browser-default styling for semantic HTML.
+ * Everything on the site uses browser-default styling for semantic HTML,
+ * with one exception: the library table fits its columns to their content,
+ * gives the title the remaining width, and elides anything that does not
+ * fit instead of wrapping it. The title's link is a size-contained block
+ * so its contents never widen the column.
  */
+
+table.library {
+  width: 100%;
+}
+
+table.library th,
+table.library td {
+  padding: 0.5rem 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table.library th.title,
+table.library td.title {
+  width: 100%;
+}
+
+table.library td.title a {
+  display: block;
+  contain: inline-size;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
