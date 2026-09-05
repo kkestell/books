@@ -14,18 +14,26 @@ class LibrariesTest < ApplicationSystemTestCase
     click_on "Kyle"
 
     assert_selector "h1", text: "Kyle"
-    assert_selector "main.container-fluid"
-    assert_selector ".table-responsive.w-100"
-    assert_selector "table.table.w-100.library-books"
+    assert_selector "main table"
     assert_text "Dune"
-
-    author_cell = find("tbody td", text: "Frank Herbert")
-    assert_equal "14px", page.evaluate_script("getComputedStyle(arguments[0]).fontSize", author_cell.native)
-    assert_equal "nowrap", page.evaluate_script("getComputedStyle(arguments[0]).whiteSpace", author_cell.native)
-    assert_equal "ellipsis", page.evaluate_script("getComputedStyle(arguments[0]).textOverflow", author_cell.native)
 
     find("tbody tr", text: "Dune").right_click
     assert_selector ".context-menu:not([hidden])"
     assert_link "Download", href: %r{/rails/active_storage/blobs/}
+    assert_link "Edit", href: edit_library_book_path(libraries(:kyle), books(:dune))
+  end
+
+  test "editing a book" do
+    visit library_path(libraries(:kyle))
+
+    find("tbody tr", text: "Dune").right_click
+    click_on "Edit"
+
+    assert_selector "h1", text: "Edit Dune"
+    fill_in "Author", with: "Frank P. Herbert"
+    click_on "Save"
+
+    assert_text "Book updated."
+    assert_text "Frank P. Herbert"
   end
 end

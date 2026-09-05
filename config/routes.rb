@@ -10,6 +10,10 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   resources :libraries, only: [ :index, :show ], param: :slug do
+    resources :books, only: [ :edit, :update ] do
+      get :download, on: :member
+    end
+
     resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
       patch :cancel, on: :member
     end

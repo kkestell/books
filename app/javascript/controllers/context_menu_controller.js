@@ -1,27 +1,29 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["menu", "download"]
+  static targets = ["menu", "edit", "download"]
 
   open(event) {
+    const editUrl = event.currentTarget.dataset.contextMenuEditUrl
     const downloadUrl = event.currentTarget.dataset.contextMenuDownloadUrl
-    if (!downloadUrl) return
+    if (!editUrl && !downloadUrl) return
 
     event.preventDefault()
     event.stopPropagation()
 
     this.returnFocus = event.currentTarget
-    this.downloadTarget.href = downloadUrl
+    this.editTarget.href = editUrl
+    this.downloadTarget.hidden = !downloadUrl
+    if (downloadUrl) this.downloadTarget.href = downloadUrl
     this.menuTarget.hidden = false
     this.positionMenu(event.clientX, event.clientY)
-    this.downloadTarget.focus()
+    this.editTarget.focus()
   }
 
   close(event) {
     if (this.menuTarget.hidden) return
 
     this.menuTarget.hidden = true
-    this.downloadTarget.removeAttribute("href")
 
     if (event?.type === "keydown") this.returnFocus?.focus()
     this.returnFocus = null

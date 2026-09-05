@@ -1,0 +1,52 @@
+<% content_for :title, "Edit #{@book.title}" %>
+
+<h1>Edit <%= @book.title %></h1>
+
+<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
+
+<% if @book.errors.any? %>
+  <ul role="alert">
+    <% @book.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with model: [ @library, @book ] do |form| %>
+  <p>
+    <%= form.label :title %><br>
+    <%= form.text_field :title %>
+  </p>
+
+  <p>
+    <%= form.label :book_type, "Type" %><br>
+    <%= form.select :book_type, Book::TYPES | [ @book.book_type ].compact, include_blank: true %>
+  </p>
+
+  <p>
+    <%= form.label :author %><br>
+    <%= form.text_field :author %>
+  </p>
+
+  <p>
+    <%= form.label :published %><br>
+    <%= form.date_field :published %>
+  </p>
+
+  <p>
+    <%= form.label :series %><br>
+    <%= form.text_field :series %>
+  </p>
+
+  <p>
+    <%= form.label :series_number, "Series number" %><br>
+    <%= form.number_field :series_number %>
+  </p>
+
+  <p>
+    <%= form.label :description %><br>
+    <%= form.textarea :description, rows: 8 %>
+  </p>
+
+  <%= form.submit "Save" %>
+<% end %>
