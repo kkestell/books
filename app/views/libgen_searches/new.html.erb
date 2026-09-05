@@ -2,28 +2,26 @@
 
 <h1>Search Libgen in <%= @library.name %></h1>
 
-<p><%= link_to "Back to #{@library.name}", library_path(@library), class: "btn btn-outline-secondary" %></p>
+<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
 
 <% if @error.present? %>
-  <div class="alert alert-danger" role="alert"><%= @error %></div>
+  <p role="alert"><%= @error %></p>
 <% end %>
 
-<%= form_with url: library_libgen_searches_path(@library), class: "row g-2 align-items-end mb-4" do |form| %>
-  <div class="col-12 col-md-4">
+<%= form_with url: library_libgen_searches_path(@library) do |form| %>
+  <p>
     <%= form.label :author, "Author" %>
-    <%= form.text_field :author, class: "form-control", placeholder: "Author..." %>
-  </div>
-  <div class="col-12 col-md-4">
+    <%= form.text_field :author, placeholder: "Author..." %>
+  </p>
+  <p>
     <%= form.label :title, "Title" %>
-    <%= form.text_field :title, class: "form-control", placeholder: "Title..." %>
-  </div>
-  <div class="col-6 col-md-2">
+    <%= form.text_field :title, placeholder: "Title..." %>
+  </p>
+  <p>
     <%= form.label :format, "Format" %>
     <%= form.select :format,
           [ [ "Any Format", "" ] ] + Libgen::Scraper::SEARCH_FORMATS.map { |value| [ value, value ] },
-          { selected: "" }, class: "form-select" %>
-  </div>
-  <div class="col-6 col-md-2">
-    <%= form.submit "Search", class: "btn btn-primary w-100" %>
-  </div>
+          { selected: "" } %>
+  </p>
+  <p><%= form.submit "Search" %></p>
 <% end %>

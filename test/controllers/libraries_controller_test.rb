@@ -19,9 +19,7 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     get library_path("kyle")
     assert_response :success
     assert_select "h1", text: "Kyle"
-    assert_select "main.container-fluid"
-    assert_select "div.table-responsive.w-100"
-    assert_select "table.table.w-100.library-books"
+    assert_select "main table"
     assert_select "th", text: "File", count: 0
     assert_select "tr[data-action='contextmenu->context-menu#open'][data-context-menu-download-url]", count: 1
     assert_select "[data-context-menu-target='menu'][hidden]"

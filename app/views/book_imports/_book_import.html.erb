@@ -1,5 +1,5 @@
-<section id="<%= dom_id(book_import) %>" class="book-import" aria-live="polite">
-  <p class="book-import__status">
+<section id="<%= dom_id(book_import) %>" aria-live="polite">
+  <p>
     <% if book_import.cancel_requested? && book_import.importing? %>
       Cancelling after the current ebook…
     <% elsif book_import.pending? %>
@@ -40,9 +40,8 @@
   <% if book_import.cancellable? %>
     <%= button_to "Cancel import", cancel_library_book_import_path(book_import.library, book_import),
           method: :patch,
-          class: "btn btn-outline-danger",
           disabled: book_import.cancel_requested? %>
   <% end %>
 
-  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library), class: "btn btn-primary" %></p>
+  <p><%= link_to "View #{book_import.library.name}", library_path(book_import.library) %></p>
 </section>

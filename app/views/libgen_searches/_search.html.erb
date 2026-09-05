@@ -1,5 +1,5 @@
-<section id="<%= dom_id(libgen_search) %>" class="libgen-search" aria-live="polite">
-  <p class="libgen-search__status">
+<section id="<%= dom_id(libgen_search) %>" aria-live="polite">
+  <p>
     <% if libgen_search.pending? %>
       Waiting for the background searcher…
     <% elsif libgen_search.running? %>
@@ -12,27 +12,25 @@
   </p>
 
   <% if libgen_search.results.any? %>
-    <div class="table-responsive">
-      <table class="table table-striped table-hover align-middle">
-        <thead>
-          <tr>
-            <th scope="col">Author</th>
-            <th scope="col">Title</th>
-            <th scope="col">Series</th>
-            <th scope="col">Format</th>
-            <th scope="col">Size</th>
-            <th scope="col">Score</th>
-            <th scope="col"><span class="visually-hidden">Download</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <%= render partial: "libgen_searches/result",
-                collection: libgen_search.results.best_first,
-                locals: { libgen_search: } %>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Author</th>
+          <th scope="col">Title</th>
+          <th scope="col">Series</th>
+          <th scope="col">Format</th>
+          <th scope="col">Size</th>
+          <th scope="col">Score</th>
+          <th scope="col" aria-label="Download"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render partial: "libgen_searches/result",
+              collection: libgen_search.results.best_first,
+              locals: { libgen_search: } %>
+      </tbody>
+    </table>
   <% elsif libgen_search.completed? %>
-    <p class="text-muted">No results were found for that search.</p>
+    <p>No results were found for that search.</p>
   <% end %>
 </section>

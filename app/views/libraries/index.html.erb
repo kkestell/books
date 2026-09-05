@@ -1,10 +1,10 @@
 <h1>Libraries</h1>
 
-<ul class="list-group">
+<ul>
   <% @libraries.each do |library| %>
-    <li class="list-group-item d-flex justify-content-between align-items-center">
+    <li>
       <%= link_to library.name, library_path(library) %>
-      <span class="badge text-bg-secondary rounded-pill"><%= pluralize(library.books.count, "book") %></span>
+      (<%= pluralize(library.books.count, "book") %>)
     </li>
   <% end %>
 </ul>

@@ -2,10 +2,10 @@
 
 <h1>Import ebooks into <%= @library.name %></h1>
 
-<p><%= link_to "Back to #{@library.name}", library_path(@library), class: "btn btn-outline-secondary" %></p>
+<p><%= link_to "Back to #{@library.name}", library_path(@library) %></p>
 
 <% if @error.present? %>
-  <div class="alert alert-danger" role="alert"><%= @error %></div>
+  <p role="alert"><%= @error %></p>
 <% end %>
 
 <%= form_with url: library_book_imports_path(@library), multipart: true,
@@ -13,13 +13,12 @@
         controller: "directory-import",
         action: "direct-upload:initialize->directory-import#uploadInitialized direct-upload:progress->directory-import#uploadProgress direct-upload:end->directory-import#uploadEnded"
       } do |form| %>
-  <fieldset class="border rounded p-3 mb-3">
+  <fieldset>
     <legend>Choose ebooks</legend>
 
     <p>
       <%= form.label :directory, "Ebook directory" %><br>
       <%= form.file_field :directory,
-            class: "form-control",
             id: "ebook-directory",
             name: "files[]",
             accept: EbookMetadata.accept_attribute,
@@ -38,7 +37,6 @@
     <p>
       <%= form.label :individual_files, "Ebook files" %><br>
       <%= form.file_field :individual_files,
-            class: "form-control",
             id: "ebook-files",
             name: "files[]",
             accept: EbookMetadata.accept_attribute,
@@ -53,10 +51,10 @@
 
   <p data-directory-import-target="selection" aria-live="polite">No ebooks selected.</p>
 
-  <section class="upload-progress" data-directory-import-target="upload" hidden aria-live="polite">
+  <section data-directory-import-target="upload" hidden aria-live="polite">
     <p data-directory-import-target="uploadStatus">Uploading ebooks…</p>
     <progress data-directory-import-target="uploadBar" max="100" value="0">0%</progress>
   </section>
 
-  <%= form.submit "Start import", class: "btn btn-primary", disabled: true, data: { directory_import_target: "submit" } %>
+  <%= form.submit "Start import", disabled: true, data: { directory_import_target: "submit" } %>
 <% end %>

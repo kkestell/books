@@ -22,7 +22,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
-    assert_select "div.alert-danger", text: "Enter an author or a title to search for."
+    assert_select "[role=alert]", text: "Enter an author or a title to search for."
   end
 
   test "create stores the search, enqueues the job, and redirects" do
@@ -56,7 +56,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
     get library_libgen_search_path(@library, search)
 
     assert_response :success
-    assert_select "p.libgen-search__status", text: "Search complete. 1 result found."
+    assert_select "section[aria-live='polite'] p", text: "Search complete. 1 result found."
     assert_select "tbody tr", count: 1
     assert_select "tr[data-mirrors='https://libgen.li/ads/one']"
   end
@@ -68,7 +68,7 @@ class LibgenSearchesControllerTest < ActionDispatch::IntegrationTest
     get library_libgen_search_path(@library, search)
 
     assert_response :success
-    assert_select "p.libgen-search__status", text: "Search failed: HTTP Error 403"
+    assert_select "section[aria-live='polite'] p", text: "Search failed: HTTP Error 403"
   end
 
   test "show does not expose another library's search" do
