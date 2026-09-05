@@ -1,0 +1,44 @@
+<section id="<%= dom_id(libgen_search) %>" class="libgen-search" aria-live="polite">
+  <p class="libgen-search__status">
+    <% if libgen_search.pending? %>
+      Waiting for the background searcher…
+    <% elsif libgen_search.running? %>
+      Searching… (<%= pluralize(libgen_search.result_count, "result") %> found)
+    <% elsif libgen_search.completed? %>
+      Search complete. <%= pluralize(libgen_search.result_count, "result") %> found.
+    <% else %>
+      Search failed: <%= libgen_search.error %>
+    <% end %>
+  </p>
+
+  <% if libgen_search.results.any? %>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Author</th>
+            <th scope="col">Title</th>
+            <th scope="col">Series</th>
+            <th scope="col">Format</th>
+            <th scope="col">Size</th>
+            <th scope="col">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% libgen_search.results.best_first.each do |result| %>
+            <tr data-mirrors="<%= result.mirrors.join(" ") %>">
+              <td title="<%= result.author %>"><%= result.author %></td>
+              <td title="<%= result.title %>"><%= result.title %></td>
+              <td title="<%= result.series %>"><%= result.series %></td>
+              <td><%= result.format %></td>
+              <td><%= result.size %></td>
+              <td><%= result.score %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% elsif libgen_search.completed? %>
+    <p class="text-muted">No results were found for that search.</p>
+  <% end %>
+</section>

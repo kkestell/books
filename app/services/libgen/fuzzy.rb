@@ -1,4 +1,4 @@
-class LibgenSearch
+module Libgen
   # Port of fuzzywuzzy's token_sort_ratio from the desktop Books app:
   # process each string (drop characters 128-255, replace remaining
   # non-word characters with whitespace, lowercase, trim), sort the

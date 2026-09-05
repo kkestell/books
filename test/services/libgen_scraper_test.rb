@@ -1,6 +1,6 @@
 require "test_helper"
 
-class LibgenSearchTest < ActiveSupport::TestCase
+class LibgenScraperTest < ActiveSupport::TestCase
   test "scores strings exactly like fuzzywuzzy's token_sort_ratio" do
     cases = [
       [ 100, "fuzzy wuzzy was a bear", "wuzzy fuzzy was a bear" ],
@@ -20,27 +20,32 @@ class LibgenSearchTest < ActiveSupport::TestCase
     ]
 
     cases.each do |expected, first, second|
-      assert_equal expected, LibgenSearch::Fuzzy.token_sort_ratio(first, second),
+      assert_equal expected, Libgen::Fuzzy.token_sort_ratio(first, second),
         "token_sort_ratio(#{first.inspect}, #{second.inspect})"
     end
   end
 
   test "reorders 'Last, First' author names" do
-    assert_equal "Annemarie Vandermeer", LibgenSearch.fix_author("Vandermeer, Annemarie")
-    assert_equal "Tamsin Rowe", LibgenSearch.fix_author("Tamsin Rowe")
-    assert_equal "Middle A", LibgenSearch.fix_author("A, Middle, B")
+    assert_equal "Annemarie Vandermeer", Libgen::Scraper.fix_author("Vandermeer, Annemarie")
+    assert_equal "Tamsin Rowe", Libgen::Scraper.fix_author("Tamsin Rowe")
+    assert_equal "Middle A", Libgen::Scraper.fix_author("A, Middle, B")
   end
 
   test "parses results, filters by language and format, and stops when pages run out" do
     transport = FakeTransport.new([ results_page, "<html></html>" ])
 
-    results = LibgenSearch.call(author: "Nia Calder", title: "", format: "EPUB", transport:)
+    pages = []
+    Libgen::Scraper.each_page(author: "Nia Calder", title: "", format: "EPUB", transport:) do |page|
+      pages << page
+    end
 
     assert_equal [
       "https://libgen.li/index.php?req=Nia+Calder&res=100&page=1",
       "https://libgen.li/index.php?req=Nia+Calder&res=100&page=2"
     ], transport.requested_urls
 
+    assert_equal 1, pages.size
+    results = pages.first
     assert_equal 3, results.size
 
     cartographer = results.first
@@ -68,23 +73,24 @@ class LibgenSearchTest < ActiveSupport::TestCase
   test "searches by title alone when no author is given" do
     transport = FakeTransport.new([ results_page, "<html></html>" ])
 
-    results = LibgenSearch.call(author: "", title: "The Cartographer's Lantern", format: "", transport:)
+    pages = []
+    Libgen::Scraper.each_page(author: "", title: "The Cartographer's Lantern", format: "", transport:) do |page|
+      pages << page
+    end
 
     assert_equal [
       "https://libgen.li/index.php?req=The+Cartographer%27s+Lantern&res=100&page=1",
       "https://libgen.li/index.php?req=The+Cartographer%27s+Lantern&res=100&page=2"
     ], transport.requested_urls
-    assert_equal 4, results.size
-
-    cartographer = results.first
-    assert_equal 100, cartographer.score
+    assert_equal 4, pages.first.size
+    assert_equal 100, pages.first.first.score
   end
 
-  test "wraps transport and parse failures in LibgenSearch::Error" do
+  test "wraps transport and parse failures in Libgen::Scraper::Error" do
     transport = FakeTransport.new([])
 
-    error = assert_raises(LibgenSearch::Error) do
-      LibgenSearch.call(author: "Nia Calder", title: "", format: "", transport:)
+    error = assert_raises(Libgen::Scraper::Error) do
+      Libgen::Scraper.each_page(author: "Nia Calder", title: "", format: "", transport:) { }
     end
     assert_equal "No more responses", error.message
   end

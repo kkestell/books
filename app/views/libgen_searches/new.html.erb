@@ -1,0 +1,27 @@
+<% content_for :title, "Search Libgen" %>
+
+<h1>Search Libgen</h1>
+
+<% if @error.present? %>
+  <div class="alert alert-danger" role="alert"><%= @error %></div>
+<% end %>
+
+<%= form_with url: libgen_searches_path, class: "row g-2 align-items-end mb-4" do |form| %>
+  <div class="col-12 col-md-4">
+    <%= form.label :author, "Author" %>
+    <%= form.text_field :author, class: "form-control", placeholder: "Author..." %>
+  </div>
+  <div class="col-12 col-md-4">
+    <%= form.label :title, "Title" %>
+    <%= form.text_field :title, class: "form-control", placeholder: "Title..." %>
+  </div>
+  <div class="col-6 col-md-2">
+    <%= form.label :format, "Format" %>
+    <%= form.select :format,
+          [ [ "Any Format", "" ] ] + Libgen::Scraper::SEARCH_FORMATS.map { |value| [ value, value ] },
+          { selected: "" }, class: "form-select" %>
+  </div>
+  <div class="col-6 col-md-2">
+    <%= form.submit "Search", class: "btn btn-primary w-100" %>
+  </div>
+<% end %>
