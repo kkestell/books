@@ -1,29 +1,36 @@
 /*
  * Everything on the site uses browser-default styling for semantic HTML,
- * with one exception: the library table fits its columns to their content,
- * gives the title the remaining width, and elides anything that does not
- * fit instead of wrapping it. The title's link is a size-contained block
- * so its contents never widen the column.
+ * with one exception: the book tables (the library and the libgen search
+ * results) fit their columns to their content, give the title the
+ * remaining width, and elide anything that does not fit instead of
+ * wrapping it. The title's contents sit in a size-contained block so they
+ * never widen the column.
  */
 
-table.library {
+table.library,
+table.results {
   width: 100%;
 }
 
 table.library th,
-table.library td {
-  padding: 0.5rem 1rem;
+table.library td,
+table.results th,
+table.results td {
+  padding: 0.25rem 0.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 table.library th.title,
-table.library td.title {
+table.library td.title,
+table.results th.title,
+table.results td.title {
   width: 100%;
 }
 
-table.library td.title a {
+table.library td.title a,
+table.results td.title span {
   display: block;
   contain: inline-size;
   overflow: hidden;
