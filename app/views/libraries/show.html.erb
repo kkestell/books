@@ -38,7 +38,15 @@
         <td title="<%= book.book_type %>"><%= book.book_type %></td>
         <td title="<%= book.format %>"><%= book.format %></td>
         <td title="<%= book.created_at.to_date %>"><%= book.created_at.to_date %></td>
-        <td><%= link_to "azw3", download_library_book_path(@library, book) if book.file.attached? %></td>
+        <td>
+          <% if book.file.attached? %>
+            <% if book.format.to_s.casecmp?("pdf") %>
+              <%= link_to "pdf", rails_blob_path(book.file, disposition: "attachment") %>
+            <% else %>
+              <%= link_to "azw3", download_library_book_path(@library, book) %>
+            <% end %>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>

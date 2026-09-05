@@ -28,6 +28,17 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "Dune"
   end
 
+  test "show links a pdf book to its original file" do
+    pdf = libraries(:kyle).books.create!(author: "Frank Herbert", title: "Dune Script", format: "PDF")
+    pdf.file.attach(io: file_fixture("dune.epub").open, filename: "dune.pdf",
+      content_type: "application/pdf")
+
+    get library_path("kyle")
+
+    assert_select "td a", text: "pdf",
+      href: rails_blob_path(pdf.file, disposition: "attachment")
+  end
+
   test "show 404s for an unknown slug" do
     get library_path("nobody")
     assert_response :not_found
