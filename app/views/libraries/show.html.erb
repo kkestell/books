@@ -4,6 +4,7 @@
   <h1 class="mb-0"><%= @library.name %></h1>
   <div class="d-flex gap-2">
     <%= link_to "All libraries", libraries_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "Search Libgen", new_library_libgen_search_path(@library), class: "btn btn-outline-secondary" %>
     <%= link_to "Import ebooks", new_library_book_import_path(@library), class: "btn btn-primary" %>
   </div>
 </div>

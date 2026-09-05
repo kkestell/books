@@ -1,9 +1,10 @@
 <% content_for :title, "Search Libgen" %>
 
-<h1>Search Libgen</h1>
+<h1>Search Libgen in <%= @library.name %></h1>
 
 <p>
-  <%= link_to "New search", new_libgen_search_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "Back to #{@library.name}", library_path(@library), class: "btn btn-outline-secondary" %>
+  <%= link_to "New search", new_library_libgen_search_path(@library), class: "btn btn-outline-secondary" %>
 </p>
 
 <%= turbo_stream_from @libgen_search %>

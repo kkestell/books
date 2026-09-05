@@ -22,19 +22,13 @@
             <th scope="col">Format</th>
             <th scope="col">Size</th>
             <th scope="col">Score</th>
+            <th scope="col"><span class="visually-hidden">Download</span></th>
           </tr>
         </thead>
         <tbody>
-          <% libgen_search.results.best_first.each do |result| %>
-            <tr data-mirrors="<%= result.mirrors.join(" ") %>">
-              <td title="<%= result.author %>"><%= result.author %></td>
-              <td title="<%= result.title %>"><%= result.title %></td>
-              <td title="<%= result.series %>"><%= result.series %></td>
-              <td><%= result.format %></td>
-              <td><%= result.size %></td>
-              <td><%= result.score %></td>
-            </tr>
-          <% end %>
+          <%= render partial: "libgen_searches/result",
+                collection: libgen_search.results.best_first,
+                locals: { libgen_search: } %>
         </tbody>
       </table>
     </div>

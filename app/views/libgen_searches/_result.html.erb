@@ -1,0 +1,24 @@
+<tr id="<%= dom_id(result) %>" data-mirrors="<%= result.mirrors.join(" ") %>">
+  <td title="<%= result.author %>"><%= result.author %></td>
+  <td title="<%= result.title %>"><%= result.title %></td>
+  <td title="<%= result.series %>"><%= result.series %></td>
+  <td><%= result.format %></td>
+  <td><%= result.size %></td>
+  <td><%= result.score %></td>
+  <td class="text-end">
+    <% book_download = result.book_downloads.order(:id).last %>
+    <% if book_download&.pending? || book_download&.running? %>
+      <span class="text-muted" aria-live="polite">Downloading…</span>
+    <% elsif book_download&.completed? %>
+      <%= link_to "In library", library_path(libgen_search.library) %>
+    <% elsif book_download&.failed? %>
+      <%= button_to "Retry download", download_library_libgen_search_path(libgen_search.library, libgen_search),
+            params: { result_id: result.id }, class: "btn btn-outline-warning btn-sm",
+            form: { class: "d-inline" }, title: book_download.error %>
+    <% else %>
+      <%= button_to "Download", download_library_libgen_search_path(libgen_search.library, libgen_search),
+            params: { result_id: result.id }, class: "btn btn-outline-primary btn-sm",
+            form: { class: "d-inline" } %>
+    <% end %>
+  </td>
+</tr>

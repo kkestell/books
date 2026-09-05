@@ -1,4 +1,6 @@
 class LibgenSearchesController < ApplicationController
+  before_action :set_library
+
   def new
   end
 
@@ -12,13 +14,19 @@ class LibgenSearchesController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    libgen_search = LibgenSearch.create!(author:, title:, format:)
+    libgen_search = @library.libgen_searches.create!(author:, title:, format:)
     LibgenSearchJob.perform_later(libgen_search)
 
-    redirect_to libgen_search_path(libgen_search)
+    redirect_to library_libgen_search_path(@library, libgen_search)
   end
 
   def show
-    @libgen_search = LibgenSearch.find(params[:id])
+    @libgen_search = @library.libgen_searches.find(params[:id])
+  end
+
+  private
+
+  def set_library
+    @library = Library.find_by!(slug: params[:library_slug])
   end
 end

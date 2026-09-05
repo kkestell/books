@@ -1,5 +1,6 @@
 class LibgenSearchResult < ApplicationRecord
   belongs_to :libgen_search
+  has_many :book_downloads, dependent: :destroy
 
   serialize :mirrors, coder: JSON, type: Array
 

@@ -1,6 +1,6 @@
-class LibgenSearch < ApplicationRecord
+class BookDownload < ApplicationRecord
   belongs_to :library
-  has_many :results, class_name: "LibgenSearchResult", dependent: :delete_all
+  belongs_to :libgen_search_result
 
   enum :status, {
     pending: "pending",

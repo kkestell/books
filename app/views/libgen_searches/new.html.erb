@@ -1,12 +1,14 @@
 <% content_for :title, "Search Libgen" %>
 
-<h1>Search Libgen</h1>
+<h1>Search Libgen in <%= @library.name %></h1>
+
+<p><%= link_to "Back to #{@library.name}", library_path(@library), class: "btn btn-outline-secondary" %></p>
 
 <% if @error.present? %>
   <div class="alert alert-danger" role="alert"><%= @error %></div>
 <% end %>
 
-<%= form_with url: libgen_searches_path, class: "row g-2 align-items-end mb-4" do |form| %>
+<%= form_with url: library_libgen_searches_path(@library), class: "row g-2 align-items-end mb-4" do |form| %>
   <div class="col-12 col-md-4">
     <%= form.label :author, "Author" %>
     <%= form.text_field :author, class: "form-control", placeholder: "Author..." %>

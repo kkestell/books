@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_04_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_05_000000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,6 +37,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_000000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "book_downloads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "error"
+    t.datetime "finished_at"
+    t.integer "libgen_search_result_id", null: false
+    t.integer "library_id", null: false
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["libgen_search_result_id"], name: "index_book_downloads_on_libgen_search_result_id"
+    t.index ["library_id"], name: "index_book_downloads_on_library_id"
   end
 
   create_table "book_imports", force: :cascade do |t|
@@ -93,11 +106,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_000000) do
     t.string "error"
     t.datetime "finished_at"
     t.string "format", default: "", null: false
+    t.integer "library_id", null: false
     t.integer "result_count", default: 0, null: false
     t.datetime "started_at"
     t.string "status", default: "pending", null: false
     t.string "title", default: "", null: false
     t.datetime "updated_at", null: false
+    t.index ["library_id"], name: "index_libgen_searches_on_library_id"
   end
 
   create_table "libraries", force: :cascade do |t|
@@ -110,7 +125,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_000000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "book_downloads", "libgen_search_results"
+  add_foreign_key "book_downloads", "libraries"
   add_foreign_key "book_imports", "libraries"
   add_foreign_key "books", "libraries"
   add_foreign_key "libgen_search_results", "libgen_searches"
+  add_foreign_key "libgen_searches", "libraries"
 end

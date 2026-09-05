@@ -2,7 +2,7 @@ require "test_helper"
 
 class LibgenSearchJobTest < ActiveJob::TestCase
   test "stores each page of results and completes the search" do
-    search = LibgenSearch.create!(author: "Nia Calder", title: "", format: "EPUB")
+    search = libraries(:kyle).libgen_searches.create!(author: "Nia Calder", title: "", format: "EPUB")
     pages = [
       [
         Libgen::Scraper::Result.new(author: "Nia Calder", series: "Maps of the Quiet Sea",
@@ -32,7 +32,7 @@ class LibgenSearchJobTest < ActiveJob::TestCase
   end
 
   test "records a failure and keeps earlier results" do
-    search = LibgenSearch.create!(author: "Nia Calder", title: "", format: "EPUB")
+    search = libraries(:kyle).libgen_searches.create!(author: "Nia Calder", title: "", format: "EPUB")
     failing_scraper = Class.new do
       def each_page
         yield [
@@ -55,7 +55,7 @@ class LibgenSearchJobTest < ActiveJob::TestCase
   end
 
   test "does not rerun a search that already started" do
-    search = LibgenSearch.create!(author: "Nia Calder", title: "", format: "EPUB", status: :running)
+    search = libraries(:kyle).libgen_searches.create!(author: "Nia Calder", title: "", format: "EPUB", status: :running)
 
     Libgen::Scraper.stub(:new, ->(**) { raise "Scraper should not be constructed" }) do
       LibgenSearchJob.perform_now(search)
