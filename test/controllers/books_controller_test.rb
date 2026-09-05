@@ -70,6 +70,19 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     converted.close!
   end
 
+  test "download reports a failed conversion" do
+    @book.file.attach(io: file_fixture("dune.epub").open, filename: "dune.epub",
+      content_type: "application/epub+zip")
+    error = EbookConversion::Error.new("ebook-convert is not available.")
+
+    EbookConversion.stub(:convert, lambda { |_| raise error }) do
+      get download_library_book_path(@library, @book)
+    end
+
+    assert_redirected_to library_path(@library)
+    assert_equal "ebook-convert is not available.", flash[:alert]
+  end
+
   test "download rejects a book without a file" do
     get download_library_book_path(@library, @book)
 

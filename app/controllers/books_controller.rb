@@ -24,7 +24,7 @@ class BooksController < ApplicationController
     end
   rescue EbookConversion::Error => error
     Rails.logger.error("Book #{@book.id} could not be converted: #{error.message}")
-    head :unprocessable_entity
+    redirect_to library_path(@library), alert: error.message
   end
 
   private
