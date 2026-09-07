@@ -17,41 +17,42 @@
   <p role="alert"><%= alert %></p>
 <% end %>
 
-<table class="library" border="1">
-  <thead>
+<%= turbo_stream_from current_user.library %>
+
+<table class="library" border="1" data-controller="table-filter">
+  <thead data-action="input->table-filter#filter">
     <tr>
-      <th scope="col">Author</th>
-      <th scope="col" class="title">Title</th>
-      <th scope="col">Series</th>
-      <th scope="col">#</th>
-      <th scope="col">Published</th>
-      <th scope="col">Type</th>
-      <th scope="col">Format</th>
-      <th scope="col">Added</th>
+      <th scope="col">
+        <input type="text" list="library-filter-author" placeholder="Author" aria-label="Filter by author" data-table-filter-target="filter">
+        <datalist id="library-filter-author"></datalist>
+      </th>
+      <th scope="col" class="title">
+        <input type="search" placeholder="Title" aria-label="Filter by title" data-table-filter-target="filter">
+      </th>
+      <th scope="col">
+        <input type="text" list="library-filter-series" placeholder="Series" aria-label="Filter by series" data-table-filter-target="filter">
+        <datalist id="library-filter-series"></datalist>
+      </th>
+      <th scope="col">
+        <input type="text" list="library-filter-published" placeholder="Published" aria-label="Filter by publication date" data-table-filter-target="filter">
+        <datalist id="library-filter-published"></datalist>
+      </th>
+      <th scope="col">
+        <input type="text" list="library-filter-book-type" placeholder="Type" aria-label="Filter by type" data-table-filter-target="filter">
+        <datalist id="library-filter-book-type"></datalist>
+      </th>
+      <th scope="col">
+        <input type="text" list="library-filter-format" placeholder="Format" aria-label="Filter by format" data-table-filter-target="filter">
+        <datalist id="library-filter-format"></datalist>
+      </th>
+      <th scope="col">
+        <input type="text" list="library-filter-added" placeholder="Added" aria-label="Filter by date added" data-table-filter-target="filter">
+        <datalist id="library-filter-added"></datalist>
+      </th>
       <th scope="col">Download</th>
     </tr>
   </thead>
   <tbody>
-    <% @books.each do |book| %>
-      <tr>
-        <td title="<%= book.author %>"><%= book.author %></td>
-        <td title="<%= book.title %>" class="title"><%= link_to book.title, edit_book_path(book) %></td>
-        <td title="<%= book.series %>"><%= book.series %></td>
-        <td title="<%= book.series_number %>"><%= book.series_number %></td>
-        <td title="<%= book.published %>"><%= book.published %></td>
-        <td title="<%= book.book_type %>"><%= book.book_type %></td>
-        <td title="<%= book.format %>"><%= book.format %></td>
-        <td title="<%= book.created_at.to_date %>"><%= book.created_at.to_date %></td>
-        <td>
-          <% if book.file.attached? %>
-            <% if book.format.to_s.casecmp?("pdf") %>
-              <%= link_to "pdf", rails_blob_path(book.file, disposition: "attachment") %>
-            <% else %>
-              <%= link_to "azw3", download_book_path(book) %>
-            <% end %>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
+    <%= render @books %>
   </tbody>
 </table>

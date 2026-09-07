@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   root "libraries#show"
 
   resources :books, only: [ :edit, :update ] do
+    post :convert, on: :member
     get :download, on: :member
   end
 

@@ -71,6 +71,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_05_120000) do
 
   create_table "books", force: :cascade do |t|
     t.string "author", null: false
+    t.string "azw3_error"
+    t.integer "azw3_source_blob_id"
+    t.string "azw3_status"
     t.string "book_type"
     t.datetime "created_at", null: false
     t.text "description"

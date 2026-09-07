@@ -18,7 +18,7 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     assert_select "main table"
     assert_select "th", text: "File", count: 0
     assert_select "td a", text: "Dune", href: edit_book_path(books(:dune))
-    assert_select "td a", text: "azw3", href: download_book_path(books(:dune))
+    assert_select "td form[action=?]", convert_book_path(books(:dune))
     assert_select "td", text: "Dune"
   end
 

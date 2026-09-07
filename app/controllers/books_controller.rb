@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
   before_action :set_library
-  before_action :set_book, only: [ :edit, :update, :download ]
+  before_action :set_book, only: [ :edit, :update, :convert, :download ]
 
   def edit
   end
@@ -13,18 +13,40 @@ class BooksController < ApplicationController
     end
   end
 
+  # Starts the azw3 conversion in the background; the converted file is
+  # delivered by #download once the job reports it ready.
+  def convert
+    return head :not_found unless @book.file.attached?
+
+    unless @book.azw3_pending? || @book.azw3_running?
+      @book.update!(azw3_status: :pending, azw3_error: nil)
+      BookConversionJob.perform_later(@book)
+    end
+
+    redirect_to root_path
+  end
+
   def download
     return head :not_found unless @book.file.attached?
 
-    @book.file.open do |source|
-      converted = EbookConversion.convert(io: source, filename: @book.file.filename.to_s)
-      send_data converted.file.read, filename: converted.filename,
-        type: converted.content_type, disposition: "attachment"
-      converted.file.close!
+    unless @book.azw3_ready? && @book.azw3_file.attached?
+      redirect_to root_path, alert: "That azw3 file is not ready. Convert the book first."
+      return
     end
-  rescue EbookConversion::Error => error
-    Rails.logger.error("Book #{@book.id} could not be converted: #{error.message}")
-    redirect_to root_path, alert: error.message
+
+    if @book.azw3_source_blob_id != @book.file.blob.id
+      @book.reset_azw3
+      redirect_to root_path, alert: "The book's file changed since that azw3 was made. Convert it again."
+      return
+    end
+
+    file = @book.azw3_file
+    data = file.download
+    filename = file.filename.to_s
+    content_type = file.content_type
+    @book.reset_azw3
+
+    send_data data, filename: filename, type: content_type, disposition: "attachment"
   end
 
   private

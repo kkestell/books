@@ -1,14 +1,15 @@
 /*
  * Everything on the site uses browser-default styling for semantic HTML,
- * with one exception: the book tables (the library and the libgen search
- * results) fit their columns to their content, give the title the
- * remaining width, and elide anything that does not fit instead of
- * wrapping it. The title's contents sit in a size-contained block so they
- * never widen the column.
+ * with one exception: the libgen search results table spans the page, gives
+ * the title the remaining width, and elides anything that does not fit
+ * instead of wrapping it. The title's contents sit in a size-contained
+ * block so they never widen the column.
+ *
+ * The library table keeps browser-default column sizing. Its cells simply
+ * never wrap, and its filter inputs fill the width of their column.
  */
 
-table.library,
-table.results {
+table {
   width: 100%;
 }
 
@@ -17,22 +18,28 @@ table.library td,
 table.results th,
 table.results td {
   padding: 0.25rem 0.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-table.library th.title,
-table.library td.title,
+table.results th,
+table.results td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 table.results th.title,
 table.results td.title {
   width: 100%;
 }
 
-table.library td.title a,
 table.results td.title span {
   display: block;
   contain: inline-size;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+table.library th input {
+  width: 100%;
+  box-sizing: border-box;
 }
