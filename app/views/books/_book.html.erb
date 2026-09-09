@@ -1,6 +1,6 @@
 <tr id="<%= dom_id(book) %>">
   <td title="<%= book.author %>"><%= book.author %></td>
-  <td title="<%= book.title %>" class="title"><%= link_to book.title, edit_book_path(book) %></td>
+  <td title="<%= book.title %>"><%= link_to book.title, edit_book_path(book) %></td>
   <td title="<%= series_label(book) %>" data-filter-value="<%= book.series %>"><%= series_label(book) %></td>
   <td title="<%= book.published %>" data-filter-value="<%= book.published&.year %>"><%= book.published %></td>
   <td title="<%= book.book_type %>"><%= book.book_type %></td>

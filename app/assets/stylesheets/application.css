@@ -1,45 +1,166 @@
 /*
- * Everything on the site uses browser-default styling for semantic HTML,
- * with one exception: the libgen search results table spans the page, gives
- * the title the remaining width, and elides anything that does not fit
- * instead of wrapping it. The title's contents sit in a size-contained
- * block so they never widen the column.
- *
- * The library table keeps browser-default column sizing. Its cells simply
- * never wrap, and its filter inputs fill the width of their column.
+ * Everything on the site uses browser-default styling for semantic HTML.
+ * The tables are the exception: their rows are CSS grids sharing one set
+ * of column tracks per table, so a table is always the full width of its
+ * container and its columns share that width in the proportions set here
+ * instead of growing with their content. Anything that does not fit is
+ * elided. As the viewport narrows, the media queries below drop each
+ * table's less essential columns.
  */
 
 table {
+  display: block;
   width: 100%;
+  border: 1px solid;
 }
 
-table.library th,
-table.library td,
-table.results th,
-table.results td {
+thead,
+tbody {
+  display: contents;
+}
+
+tr {
+  display: grid;
+  grid-template-columns: var(--columns);
+}
+
+tr[hidden] {
+  display: none;
+}
+
+table th,
+table td {
+  min-width: 0;
+  overflow: hidden;
   padding: 0.25rem 0.5rem;
   white-space: nowrap;
-}
-
-table.results th,
-table.results td {
-  overflow: hidden;
   text-overflow: ellipsis;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
 }
 
-table.results th.title,
-table.results td.title {
-  width: 100%;
+/* The outer border draws the table's right and bottom edges. Every table's
+   last column stays visible at every width, so dropping its right border
+   never leaves a row short of one. */
+table :is(th, td):last-child {
+  border-right: 0;
 }
 
-table.results td.title span {
-  display: block;
-  contain: inline-size;
-  overflow: hidden;
-  text-overflow: ellipsis;
+table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+table.library {
+  --columns: minmax(0, 1.1fr) minmax(0, 2.6fr) minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 0.55fr) minmax(0, 0.8fr) 10rem;
+}
+
+table.results {
+  --columns: minmax(0, 1.2fr) minmax(0, 3fr) minmax(0, 1.5fr) minmax(0, 0.6fr) minmax(0, 0.7fr) minmax(0, 0.6fr) 10rem;
+}
+
+table.downloads {
+  --columns: minmax(0, 1.2fr) minmax(0, 2.6fr) minmax(0, 1.4fr) minmax(0, 0.6fr) minmax(0, 0.6fr) minmax(0, 0.8fr);
 }
 
 table.library th input {
   width: 100%;
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  table.library {
+    --columns: minmax(0, 1.1fr) minmax(0, 2.7fr) minmax(0, 1.5fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 0.6fr) 10rem;
+  }
+
+  table.library :is(th, td):nth-child(7) {
+    display: none;
+  }
+
+  table.results {
+    --columns: minmax(0, 1.2fr) minmax(0, 3.2fr) minmax(0, 1.6fr) minmax(0, 0.7fr) minmax(0, 0.7fr) 10rem;
+  }
+
+  table.results :is(th, td):nth-child(6) {
+    display: none;
+  }
+
+  table.downloads {
+    --columns: minmax(0, 1.2fr) minmax(0, 2.8fr) minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 0.9fr);
+  }
+
+  table.downloads :is(th, td):nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 896px) {
+  table.library {
+    --columns: minmax(0, 1.1fr) minmax(0, 2.8fr) minmax(0, 1.6fr) minmax(0, 0.9fr) minmax(0, 0.7fr) 10rem;
+  }
+
+  table.library :is(th, td):nth-child(6) {
+    display: none;
+  }
+
+  table.results {
+    --columns: minmax(0, 1.2fr) minmax(0, 3.4fr) minmax(0, 1.8fr) minmax(0, 0.8fr) 10rem;
+  }
+
+  table.results :is(th, td):nth-child(5) {
+    display: none;
+  }
+
+  table.downloads {
+    --columns: minmax(0, 1.2fr) minmax(0, 3fr) minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+
+  table.downloads :is(th, td):nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  table.library {
+    --columns: minmax(0, 1.2fr) minmax(0, 3fr) minmax(0, 1.7fr) minmax(0, 1fr) 10rem;
+  }
+
+  table.library :is(th, td):nth-child(5) {
+    display: none;
+  }
+
+  table.results {
+    --columns: minmax(0, 1.2fr) minmax(0, 3.6fr) minmax(0, 2fr) 10rem;
+  }
+
+  table.results :is(th, td):nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  table.library {
+    --columns: minmax(0, 1.2fr) minmax(0, 3.2fr) minmax(0, 1.9fr) 10rem;
+  }
+
+  table.library :is(th, td):nth-child(4) {
+    display: none;
+  }
+
+  table.results {
+    --columns: minmax(0, 1.2fr) minmax(0, 4fr) 10rem;
+  }
+
+  table.results :is(th, td):nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 512px) {
+  table.library {
+    --columns: minmax(0, 1fr) minmax(0, 3.4fr) 10rem;
+  }
+
+  table.library :is(th, td):nth-child(3) {
+    display: none;
+  }
 }
