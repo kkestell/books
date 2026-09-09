@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_05_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_09_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -71,9 +71,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_05_120000) do
 
   create_table "books", force: :cascade do |t|
     t.string "author", null: false
-    t.string "azw3_error"
-    t.integer "azw3_source_blob_id"
-    t.string "azw3_status"
     t.string "book_type"
     t.datetime "created_at", null: false
     t.text "description"

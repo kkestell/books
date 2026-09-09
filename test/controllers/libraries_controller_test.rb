@@ -18,19 +18,9 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     assert_select "main table"
     assert_select "th", text: "File", count: 0
     assert_select "td a", text: "Dune", href: edit_book_path(books(:dune))
-    assert_select "td form[action=?]", convert_book_path(books(:dune))
+    assert_select "td a", text: "epub",
+      href: rails_blob_path(books(:dune).file, disposition: "attachment")
     assert_select "td", text: "Dune"
-  end
-
-  test "the root links a pdf book to its original file" do
-    pdf = libraries(:kyle).books.create!(author: "Frank Herbert", title: "Dune Script", format: "PDF")
-    pdf.file.attach(io: file_fixture("dune.epub").open, filename: "dune.pdf",
-      content_type: "application/pdf")
-
-    get root_path
-
-    assert_select "td a", text: "pdf",
-      href: rails_blob_path(pdf.file, disposition: "attachment")
   end
 
   test "new book import displays directory and file pickers" do

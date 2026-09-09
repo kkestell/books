@@ -1,24 +1,14 @@
 <tr id="<%= dom_id(book) %>">
   <td title="<%= book.author %>"><%= book.author %></td>
-  <td title="<%= book.title %>" class="title"><%= link_to book.title, edit_book_path(book) %></td>
+  <td title="<%= book.title %>"><%= link_to book.title, edit_book_path(book) %></td>
   <td title="<%= series_label(book) %>" data-filter-value="<%= book.series %>"><%= series_label(book) %></td>
-  <td title="<%= book.published %>"><%= book.published %></td>
+  <td title="<%= book.published %>" data-filter-value="<%= book.published&.year %>"><%= book.published %></td>
   <td title="<%= book.book_type %>"><%= book.book_type %></td>
   <td title="<%= book.format %>"><%= book.format %></td>
   <td title="<%= book.created_at.to_date %>"><%= book.created_at.to_date %></td>
   <td>
     <% if book.file.attached? %>
-      <% if book.format.to_s.casecmp?("pdf") %>
-        <%= link_to "pdf", rails_blob_path(book.file, disposition: "attachment") %>
-      <% elsif book.azw3_ready? %>
-        <%= link_to "azw3", download_book_path(book) %>
-      <% elsif book.azw3_pending? || book.azw3_running? %>
-        <span aria-live="polite">Converting…</span>
-      <% elsif book.azw3_failed? %>
-        <%= button_to "Retry conversion", convert_book_path(book), title: book.azw3_error %>
-      <% else %>
-        <%= button_to "azw3", convert_book_path(book) %>
-      <% end %>
+      <%= link_to download_label(book), rails_blob_path(book.file, disposition: "attachment") %>
     <% end %>
   </td>
 </tr>

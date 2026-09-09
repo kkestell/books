@@ -17,23 +17,7 @@ class LibrariesTest < ApplicationSystemTestCase
     assert_text "Dune #1"
 
     assert_link "Dune", href: edit_book_path(books(:dune))
-    assert_button "azw3"
-  end
-
-  test "converting a book for download" do
-    books(:dune).file.attach(
-      io: file_fixture("dune.epub").open,
-      filename: "dune.epub",
-      content_type: "application/epub+zip"
-    )
-
-    visit root_path
-    click_on "Log in as Kyle"
-
-    click_button "azw3"
-
-    assert_text "Converting…"
-    assert books(:dune).reload.azw3_pending?
+    assert_link "epub", href: rails_blob_path(books(:dune).file, disposition: "attachment")
   end
 
   test "filtering the library table" do
@@ -43,6 +27,8 @@ class LibrariesTest < ApplicationSystemTestCase
     assert_selector "datalist#library-filter-author option[value='Frank Herbert']", visible: :all
     assert_selector "datalist#library-filter-series option[value='Dune']", visible: :all
     assert_no_selector "datalist#library-filter-series option[value='Dune #1']", visible: :all
+    assert_selector "datalist#library-filter-published option[value='1965']", visible: :all
+    assert_no_selector "datalist#library-filter-published option[value='1965-08-01']", visible: :all
 
     fill_in "Title", with: "Dun"
     assert_text "Frank Herbert"

@@ -17,10 +17,7 @@ Rails.application.routes.draw do
   # session instead of through a library slug in the URL.
   root "libraries#show"
 
-  resources :books, only: [ :edit, :update ] do
-    post :convert, on: :member
-    get :download, on: :member
-  end
+  resources :books, only: [ :edit, :update ]
 
   resources :book_imports, path: "books/imports", only: [ :new, :create, :show ] do
     patch :cancel, on: :member
